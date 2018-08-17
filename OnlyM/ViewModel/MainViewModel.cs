@@ -304,7 +304,7 @@ namespace OnlyM.ViewModel
 
         private void LaunchHelpPage()
         {
-            Process.Start(@"https://github.com/AntonyCorbett/OnlyM/wiki");
+            Process.Start(@"https://github.com/TizianoNoto/OnlyM/wiki");
         }
 
         private void LaunchMediaFolder()
