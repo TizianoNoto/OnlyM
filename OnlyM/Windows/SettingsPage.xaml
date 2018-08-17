@@ -14,7 +14,7 @@
              TextOptions.TextRenderingMode="Auto"
              Background="{DynamicResource MaterialDesignPaper}"
              FontFamily="{DynamicResource MaterialDesignFont}"
-             d:DesignHeight="1650" d:DesignWidth="600">
+             d:DesignHeight="1718" d:DesignWidth="600">
 
     <UserControl.Resources>
         <ResourceDictionary>
@@ -85,13 +85,13 @@
     </UserControl.Triggers>
 
     <StackPanel Orientation="Vertical">
-        <GroupBox Header="Display" Style="{StaticResource SettingsGroupBoxStyle}">
+        <GroupBox Header="Schermo" Style="{StaticResource SettingsGroupBoxStyle}">
             <StackPanel Orientation="Vertical">
 
                 <ComboBox ItemsSource="{Binding Monitors}"
                           Style="{StaticResource SettingsComboBoxStyle}" 
                           materialDesign:HintAssist.IsFloating="True"
-                          materialDesign:HintAssist.Hint="Media Monitor"
+                          materialDesign:HintAssist.Hint="Monitor multimedia"
                           SelectedValuePath="MonitorId" 
                           DisplayMemberPath="MonitorName"
                           SelectedValue="{Binding MonitorId, Mode=TwoWay}">
@@ -100,23 +100,23 @@
                 <CheckBox IsChecked="{Binding PermanentBackdrop, Mode=TwoWay}"
                           IsEnabled="{Binding JwLibModeNotSet, Mode=OneWay}"
                           Style="{StaticResource SettingsCheckBoxStyle}">
-                    Permanent backdrop
+                    Sfondo sempre visibile
                 </CheckBox>
 
                 <CheckBox IsChecked="{Binding IncludeBlankScreenItem, Mode=TwoWay}"
                           IsEnabled="{Binding NotPermanentBackdrop, Mode=OneWay}"
                           Style="{StaticResource SettingsCheckBoxStyle}">
-                    Include "Blank Screen" item
+                    Aggiungi elemento "Schermo nero"
                 </CheckBox>
 
                 <CheckBox IsChecked="{Binding JwLibraryCompatibilityMode, Mode=TwoWay}"
                           Style="{StaticResource SettingsCheckBoxStyle}">
-                    JW Library compatibility mode
+                    Modalità compatibilità con JW Library
                 </CheckBox>
             </StackPanel>
         </GroupBox>
 
-        <GroupBox Header="Media Files" Style="{StaticResource SettingsGroupBoxStyle}">
+        <GroupBox Header="Cartella multimedia" Style="{StaticResource SettingsGroupBoxStyle}">
             <StackPanel Orientation="Vertical">
 
                 <StackPanel Orientation="Horizontal">
@@ -126,7 +126,7 @@
                               Visibility="{Binding Path=IsMediaFolderOverriden, Converter={StaticResource InverseBoolToVisConverter}}"
                               IsEnabled="{Binding IsMediaInactive}"
                               materialDesign:HintAssist.IsFloating="True"
-                              materialDesign:HintAssist.Hint="Media Folder"
+                              materialDesign:HintAssist.Hint="Cartella multimedia"
                               SelectedValue="{Binding MediaFolder, Mode=TwoWay}"/>
 
                     <Button Style="{StaticResource MaterialDesignRaisedLightButton}" 
@@ -140,28 +140,28 @@
 
                 <TextBlock Margin="0,10,0,0" Style="{StaticResource MaterialDesignCaptionTextBlock}"
                            Visibility="{Binding Path=IsMediaFolderOverriden, Converter={StaticResource BooleanToVisibilityConverter}}"
-                           Text ="Media folder specified on command-line:" />
+                           Text ="Cartella multimedia indicata sulla riga di comando:" />
                 <TextBlock Margin="0,5,0,10" 
                            Visibility="{Binding Path=IsMediaFolderOverriden, Converter={StaticResource BooleanToVisibilityConverter}}"
                            Text ="{Binding MediaFolder}" />
 
                 <CheckBox IsChecked="{Binding EmbeddedThumbnails, Mode=TwoWay}"
                           Style="{StaticResource SettingsCheckBoxStyle}">
-                    Use embedded thumbnails where available
+                    Usa miniature incorporate se disponibili
                 </CheckBox>
 
                 <CheckBox IsChecked="{Binding UseInternalMediaTitles, Mode=TwoWay}"
                           Style="{StaticResource SettingsCheckBoxStyle}">
-                    Use embedded titles where available
+                    Usa titoli incorporati se disponibili
                 </CheckBox>
 
                 <CheckBox IsChecked="{Binding ShowCommandPanel, Mode=TwoWay}"
                           Style="{StaticResource SettingsCheckBoxStyle}">
-                    Enable Command Panel
+                    Abilita pannello comandi
                 </CheckBox>
 
                 <TextBox
-                    materialDesign:HintAssist.Hint="Maximum number of items"
+                    materialDesign:HintAssist.Hint="Numero massimo di elementi"
                     Text="{Binding MaxItemCount, Mode=TwoWay}"
                     Style="{StaticResource SettingsTextBoxStyle}" />
 
@@ -169,18 +169,18 @@
                     Style="{StaticResource SettingsButtonStyle}" 
                     Margin="0,10,0,0"
                     Command="{Binding PurgeThumbnailCacheCommand}"
-                    Content="Purge Thumbnail Cache" />
+                    Content="Svuota cache miniature" />
 
             </StackPanel>
         </GroupBox>
 
-        <GroupBox Header="Images" Style="{StaticResource SettingsGroupBoxStyle}">
+        <GroupBox Header="Immagini" Style="{StaticResource SettingsGroupBoxStyle}">
             <StackPanel Orientation="Vertical">
 
                 <ComboBox ItemsSource="{Binding ImageFadeTypes}"
                           Style="{StaticResource SettingsComboBoxStyle}" 
                           materialDesign:HintAssist.IsFloating="True"
-                          materialDesign:HintAssist.Hint="Fading Style"
+                          materialDesign:HintAssist.Hint="Stile dissolvenza"
                           SelectedValuePath="Fade" 
                           DisplayMemberPath="Name"
                           SelectedValue="{Binding ImageFadeType, Mode=TwoWay}"/>
@@ -188,107 +188,107 @@
                 <ComboBox ItemsSource="{Binding FadeSpeedTypes}"
                           Style="{StaticResource SettingsComboBoxStyle}" 
                           materialDesign:HintAssist.IsFloating="True"
-                          materialDesign:HintAssist.Hint="Fading Speed"
+                          materialDesign:HintAssist.Hint="Velocità dissolvenza"
                           SelectedValuePath="Speed" 
                           DisplayMemberPath="Name"
                           SelectedValue="{Binding FadeSpeedType, Mode=TwoWay}"/>
 
                 <CheckBox IsChecked="{Binding CacheImages, Mode=TwoWay}"
                           Style="{StaticResource SettingsCheckBoxStyle}">
-                    Cache images (better performance but more memory)
+                    Cache immagini (prestazioni migliori ma uso maggiore memoria)
                 </CheckBox>
 
             </StackPanel>
         </GroupBox>
 
-        <GroupBox Header="Videos and Audio" Style="{StaticResource SettingsGroupBoxStyle}">
+        <GroupBox Header="Video e Audio" Style="{StaticResource SettingsGroupBoxStyle}">
             <StackPanel Orientation="Vertical">
 
                 <CheckBox IsChecked="{Binding ShowVideoSubtitles, Mode=TwoWay}"
                           Style="{StaticResource SettingsCheckBoxStyle}">
-                    Show subtitles if available
+                    Mostra sottotitoli se disponibili
                 </CheckBox>
 
                 <CheckBox IsChecked="{Binding AllowVideoPositionSeeking, Mode=TwoWay}"
                           Style="{StaticResource SettingsCheckBoxStyle}">
-                    Allow position seeking
+                    Consenti ricerca posizione
                 </CheckBox>
 
                 <CheckBox IsChecked="{Binding AllowVideoScrubbing, Mode=TwoWay}"
                           Style="{StaticResource SettingsCheckBoxStyle}">
-                    Allow scrubbing when paused
+                    Consenti scorrimento in pausa
                 </CheckBox>
 
                 <CheckBox IsChecked="{Binding AllowVideoPause, Mode=TwoWay}"
                           Style="{StaticResource SettingsCheckBoxStyle}">
-                    Allow pause
+                    Consenti pausa
                 </CheckBox>
 
                 <CheckBox IsChecked="{Binding ShowFreezeCommand, Mode=TwoWay}"
                           Style="{StaticResource SettingsCheckBoxStyle}">
-                    Show 'Freeze' command in Command Panel
+                    Mostra comando "Ferma" nel pannello comandi
                 </CheckBox>
 
                 <CheckBox IsChecked="{Binding ConfirmWhenStoppingVideo, Mode=TwoWay}"
                           Style="{StaticResource SettingsCheckBoxStyle}">
-                    Confirm when stopping
+                    Conferma all'arresto
                 </CheckBox>
             </StackPanel>
         </GroupBox>
 
-        <GroupBox Header="Margins (as percentage of screen size)" Style="{StaticResource SettingsGroupBoxStyle}">
+        <GroupBox Header="Margini (percentuale dimensioni schermo)" Style="{StaticResource SettingsGroupBoxStyle}">
 
             <StackPanel Margin="0,0,0,30">
                 <TextBlock Style="{StaticResource MaterialDesignSubheadingTextBlock}" 
-                           Margin="0,0,0,-20">Video margins</TextBlock>
+                           Margin="0,0,0,-20">Margini video</TextBlock>
 
                 <StackPanel Style="{StaticResource SettingsMarginStackPanelStyle}">
-                    <Label Style="{StaticResource SettingsMarginLabelStyle}">L</Label>
+                    <Label Style="{StaticResource SettingsMarginLabelStyle}" Width="40">SX</Label>
                     <Slider Style="{StaticResource SettingsSliderStyle}" 
                             Value="{Binding VideoScreenLeftMargin, Mode=TwoWay}"/>
                 </StackPanel>
 
                 <StackPanel Style="{StaticResource SettingsMarginStackPanelStyle}">
-                    <Label Style="{StaticResource SettingsMarginLabelStyle}">T</Label>
+                    <Label Style="{StaticResource SettingsMarginLabelStyle}" Width="40">SUP</Label>
                     <Slider Style="{StaticResource SettingsSliderStyle}" 
                             Value="{Binding VideoScreenTopMargin, Mode=TwoWay}"/>
                 </StackPanel>
 
                 <StackPanel Style="{StaticResource SettingsMarginStackPanelStyle}">
-                    <Label Style="{StaticResource SettingsMarginLabelStyle}">R</Label>
+                    <Label Style="{StaticResource SettingsMarginLabelStyle}" Width="40">DX</Label>
                     <Slider Style="{StaticResource SettingsSliderStyle}" 
                             Value="{Binding VideoScreenRightMargin, Mode=TwoWay}"/>
                 </StackPanel>
 
                 <StackPanel Style="{StaticResource SettingsMarginStackPanelStyle}">
-                    <Label Style="{StaticResource SettingsMarginLabelStyle}">B</Label>
+                    <Label Style="{StaticResource SettingsMarginLabelStyle}" Width="40">INF</Label>
                     <Slider Style="{StaticResource SettingsSliderStyle}" 
                             Value="{Binding VideoScreenBottomMargin, Mode=TwoWay}"/>
                 </StackPanel>
 
                 <TextBlock Style="{StaticResource MaterialDesignSubheadingTextBlock}" 
-                           Margin="0,40,0,-20">Image margins</TextBlock>
+                           Margin="0,40,0,-20">Margini immagine</TextBlock>
 
                 <StackPanel Style="{StaticResource SettingsMarginStackPanelStyle}">
-                    <Label Style="{StaticResource SettingsMarginLabelStyle}">L</Label>
+                    <Label Style="{StaticResource SettingsMarginLabelStyle}" Width="40">SX</Label>
                     <Slider Style="{StaticResource SettingsSliderStyle}" 
                             Value="{Binding ImageScreenLeftMargin, Mode=TwoWay}"/>
                 </StackPanel>
 
                 <StackPanel Style="{StaticResource SettingsMarginStackPanelStyle}">
-                    <Label Style="{StaticResource SettingsMarginLabelStyle}">T</Label>
+                    <Label Style="{StaticResource SettingsMarginLabelStyle}" Width="40">SUP</Label>
                     <Slider Style="{StaticResource SettingsSliderStyle}" 
                             Value="{Binding ImageScreenTopMargin, Mode=TwoWay}"/>
                 </StackPanel>
 
                 <StackPanel Style="{StaticResource SettingsMarginStackPanelStyle}">
-                    <Label Style="{StaticResource SettingsMarginLabelStyle}">R</Label>
+                    <Label Style="{StaticResource SettingsMarginLabelStyle}" Width="40">DX</Label>
                     <Slider Style="{StaticResource SettingsSliderStyle}" 
                             Value="{Binding ImageScreenRightMargin, Mode=TwoWay}"/>
                 </StackPanel>
 
                 <StackPanel Style="{StaticResource SettingsMarginStackPanelStyle}">
-                    <Label Style="{StaticResource SettingsMarginLabelStyle}">B</Label>
+                    <Label Style="{StaticResource SettingsMarginLabelStyle}" Width="40">INF</Label>
                     <Slider Style="{StaticResource SettingsSliderStyle}" 
                             Value="{Binding ImageScreenBottomMargin, Mode=TwoWay}"/>
                 </StackPanel>
@@ -296,10 +296,15 @@
             </StackPanel>
         </GroupBox>
 
-        <GroupBox Header="Miscellaneous" Style="{StaticResource SettingsGroupBoxStyle}">
+        <GroupBox Header="Varie" Style="{StaticResource SettingsGroupBoxStyle}">
             <StackPanel Orientation="Vertical">
 
                 <TextBlock Text="{Binding AppVersionStr}" 
+                           FontSize="12"
+                           Margin="0,0,0,0"
+                           Foreground="{StaticResource MaterialDesignDarkBackground}" />
+
+                <TextBlock Text="Creato da Antony Corbett, tradotto da Tiziano Noto" 
                            FontSize="12"
                            Margin="0,0,0,15"
                            Foreground="{StaticResource MaterialDesignDarkBackground}" />
@@ -312,17 +317,17 @@
                     SelectedDate="{Binding MediaCalendarDate}"
                     SelectedDateFormat="Long"
                     Width="200"
-                    materialDesign:HintAssist.Hint="Current date" />
+                    materialDesign:HintAssist.Hint="Data odierna" />
 
                 <CheckBox IsChecked="{Binding AlwaysOnTop, Mode=TwoWay}"
                           Style="{StaticResource SettingsCheckBoxStyle}">
-                    Main window always on top
+                    Finestra principale sempre in primo piano
                 </CheckBox>
 
                 <ComboBox ItemsSource="{Binding LoggingLevels}"
                           Style="{StaticResource SettingsComboBoxStyle}" 
                           materialDesign:HintAssist.IsFloating="True"
-                          materialDesign:HintAssist.Hint="Logging Level"
+                          materialDesign:HintAssist.Hint="Livello di log"
                           SelectedValuePath="Level" 
                           DisplayMemberPath="Name"
                           SelectedValue="{Binding LogEventLevel, Mode=TwoWay}"/>

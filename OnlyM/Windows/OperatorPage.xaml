@@ -55,23 +55,23 @@
                                     <Button Grid.Column="0" Grid.Row="0"
                                             Command="{Binding Path=DataContext.DeleteMediaItemCommand, Source={x:Reference OnlyMOperatorPage}}"
                                             CommandParameter="{Binding Id}"
-                                            Content="DELETE"
+                                            Content="ELIMINA"
                                             Style="{StaticResource MaterialDesignRaisedAccentButton}"/>
 
                                     <Button Grid.Column="0" Grid.Row="1"
                                             Command="{Binding Path=DataContext.HideMediaItemCommand, Source={x:Reference OnlyMOperatorPage}}"
                                             CommandParameter="{Binding Id}"
-                                            Content="HIDE"
+                                            Content="NASCONDI"
                                             Style="{StaticResource MaterialDesignRaisedLightButton}"/>
 
                                     <CheckBox Grid.Column="1" Grid.Row="1"
                                             Visibility="{Binding ShouldDisplayFreezeCommand, Converter={StaticResource BooleanToVisibilityConverter}}"
                                             Margin="10,0,0,0"
-                                            ToolTip="Pause on final frame"
+                                            ToolTip="Fermo immagine sull'ultimo fotogramma"
                                             IsChecked="{Binding PauseOnLastFrame, Mode=TwoWay}"
                                             Command="{Binding Path=DataContext.FreezeVideoCommand, Source={x:Reference OnlyMOperatorPage}}"
                                             CommandParameter="{Binding Id}"
-                                            Content="Freeze" />
+                                            Content="Ferma" />
 
                                 </Grid>
 
@@ -144,7 +144,7 @@
 
                                     <Border BorderThickness="1" 
                                             Visibility="{Binding PauseOnLastFrame, Converter={StaticResource BooleanToVisibilityConverter}}"
-                                            ToolTip="Will pause on final frame"
+                                            ToolTip="Pausa sull'ultimo fotogramma"
                                             BorderBrush="Black">
                                     <Image 
                                         HorizontalAlignment="Right"
