@@ -163,7 +163,7 @@
                 <TextBlock Visibility="{Binding Path=ShowDragAndDropHint, Converter={StaticResource BooleanToVisibilityConverter}}" 
                            Height="20"
                            VerticalAlignment="Top"
-                           Text="Drop your media files here!"
+                           Text="Trascina qui i tuoi file multimediali!"
                            Margin="20,20,20,0">
 
                 </TextBlock>
@@ -204,7 +204,7 @@
                         <Button Grid.Column="0"
                         HorizontalAlignment="Left"
                         Command="{Binding GotoOperatorCommand}"
-                        ToolTip="Media page"
+                        ToolTip="Multimedia"
                         Visibility="{Binding Path=IsSettingsPageActive, Converter={StaticResource BooleanToVisibilityConverter}}"
                         Style="{StaticResource MaterialDesignFloatingActionMiniDarkButton}">
                             <materialDesign:PackIcon
@@ -216,10 +216,10 @@
                     <Button Grid.Column="0"
                         HorizontalAlignment="Left"
                         Command="{Binding UnhideCommand}"
-                        ToolTip="Unhide"
+                        ToolTip="Mostra elementi nascosti"
                         Visibility="{Binding Path=IsUnhideButtonVisible, Converter={StaticResource BooleanToVisibilityConverter}}"
                         Style="{StaticResource MaterialDesignRaisedAccentButton}">
-                        UNHIDE
+                        MOSTRA
                     </Button>
 
                     <materialDesign:Card
@@ -237,7 +237,7 @@
                     <Button
                         Command="{Binding LaunchReleasePageCommand}"
                         Grid.Column="1"
-                        ToolTip="New version available!"
+                        ToolTip="Nuova versione disponibile!"
                         Visibility="{Binding Path=ShowNewVersionButton, Converter={StaticResource BooleanToVisibilityConverter}}"
                         Style="{StaticResource MaterialDesignFloatingActionMiniAccentButton}">
                         <materialDesign:PackIcon
@@ -263,7 +263,7 @@
                     <Button
                         Command="{Binding LaunchHelpPageCommand}"
                         Grid.Column="3"
-                        ToolTip="Display help"
+                        ToolTip="Guida"
                         Visibility="{Binding Path=IsOperatorPageActive, Converter={StaticResource BooleanToVisibilityConverter}}"
                         Style="{StaticResource MaterialDesignFloatingActionMiniDarkButton}">
                         <materialDesign:PackIcon
