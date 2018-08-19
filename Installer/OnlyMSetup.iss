@@ -32,6 +32,9 @@ RestartApplications=False
 CloseApplications=False
 AppMutex=OnlyMMeetingMedia
 
+[Languages]
+Name: "italian"; MessagesFile: "compiler:Languages\Italian.isl"
+
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"
 
