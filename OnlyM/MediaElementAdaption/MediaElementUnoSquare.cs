@@ -6,15 +6,16 @@
     using Serilog.Events;
     using Unosquare.FFME.Shared;
 
-    internal class MediaElementUnoSquare : IMediaElement
+    internal sealed class MediaElementUnoSquare : IMediaElement
     {
         private readonly Unosquare.FFME.MediaElement _mediaElement;
-        
+
         public MediaElementUnoSquare(Unosquare.FFME.MediaElement mediaElement)
         {
             _mediaElement = mediaElement;
+            _mediaElement.Volume = 1.0;
 
-            _mediaElement.MediaOpened += HandleMediaOpened;
+            _mediaElement.MediaOpened += async (s, e) => await HandleMediaOpened(s, e);
             _mediaElement.MediaClosed += HandleMediaClosed;
             _mediaElement.MediaEnded += HandleMediaEnded;
             _mediaElement.MediaFailed += HandleMediaFailed;
@@ -49,31 +50,37 @@
 
         public Guid MediaItemId { get; set; }
 
-        public Task Play()
+        public async Task Play(Uri mediaPath)
         {
-            return _mediaElement.Play();
+            IsPaused = false;
+
+            if (_mediaElement.Source != mediaPath)
+            {
+                _mediaElement.Source = mediaPath;
+            }
+            else
+            {
+                await _mediaElement.Play();
+            }
         }
 
         public Task Pause()
         {
+            IsPaused = true;
             return _mediaElement.Pause();
         }
 
         public Task Close()
         {
+            IsPaused = false;
             return _mediaElement.Close();
         }
 
-        public Uri Source
-        {
-            get => _mediaElement.Source;
-            set => _mediaElement.Source = value;
-        }
+        public bool IsPaused { get; private set; }
 
-        public bool IsPaused => _mediaElement.IsPaused;
-
-        private void HandleMediaOpened(object sender, RoutedEventArgs e)
+        private async Task HandleMediaOpened(object sender, RoutedEventArgs e)
         {
+            await _mediaElement.Play();
             MediaOpened?.Invoke(sender, e);
         }
 

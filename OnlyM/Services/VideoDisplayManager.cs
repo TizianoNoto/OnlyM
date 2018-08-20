@@ -42,18 +42,18 @@
         public bool ShowSubtitles { get; set; }
 
         public async Task ShowVideoOrPlayAudio(
-            string mediaItemFilePath, 
+            string mediaItemFilePath,
             ScreenPosition screenPosition,
             Guid mediaItemId,
             MediaClassification mediaClassification,
-            TimeSpan startOffset, 
+            TimeSpan startOffset,
             bool startFromPaused)
         {
             _mediaItemId = mediaItemId;
             _mediaClassification = mediaClassification;
             _startPosition = startOffset;
             _lastPosition = TimeSpan.Zero;
-            
+
             ScreenPositionHelper.SetScreenPosition(_mediaElement.FrameworkElement, screenPosition);
 
             _mediaElement.MediaItemId = mediaItemId;
@@ -61,19 +61,20 @@
             if (startFromPaused)
             {
                 _mediaElement.Position = _startPosition;
-                await _mediaElement.Play();
+                await _mediaElement.Play(new Uri(mediaItemFilePath));
                 OnMediaChangeEvent(CreateMediaEventArgs(_mediaItemId, MediaChange.Started));
             }
             else
             {
+                await _mediaElement.Play(new Uri(mediaItemFilePath));
                 OnMediaChangeEvent(CreateMediaEventArgs(_mediaItemId, MediaChange.Starting));
-                _mediaElement.Source = new Uri(mediaItemFilePath);
             }
         }
 
         public void SetPlaybackPosition(TimeSpan position)
         {
             _manuallySettingPlaybackPosition = true;
+
             _mediaElement.Position = position;
             _lastPosition = TimeSpan.Zero;
             _manuallySettingPlaybackPosition = false;
@@ -131,8 +132,12 @@
         private async Task HandleMediaEnded(object sender, System.Windows.RoutedEventArgs e)
         {
             Log.Logger.Debug("Media ended");
-            OnMediaChangeEvent(CreateMediaEventArgs(_mediaItemId, MediaChange.Stopped));
-            await _mediaElement.Close();
+
+            if (!_mediaElement.IsPaused)
+            {
+                OnMediaChangeEvent(CreateMediaEventArgs(_mediaItemId, MediaChange.Stopped));
+                await _mediaElement.Close();
+            }
         }
 
         private void HandleMediaFailed(object sender, System.Windows.ExceptionRoutedEventArgs e)

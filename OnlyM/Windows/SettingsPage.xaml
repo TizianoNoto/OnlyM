@@ -14,7 +14,7 @@
              TextOptions.TextRenderingMode="Auto"
              Background="{DynamicResource MaterialDesignPaper}"
              FontFamily="{DynamicResource MaterialDesignFont}"
-             d:DesignHeight="1718" d:DesignWidth="600">
+             d:DesignHeight="1850" d:DesignWidth="600">
 
     <UserControl.Resources>
         <ResourceDictionary>
@@ -203,6 +203,16 @@
 
         <GroupBox Header="Video e Audio" Style="{StaticResource SettingsGroupBoxStyle}">
             <StackPanel Orientation="Vertical">
+
+                <ComboBox ItemsSource="{Binding RenderingMethods}"
+                          IsEnabled="{Binding IsMediaInactive}"
+                          Style="{StaticResource SettingsComboBoxStyle}" 
+                          materialDesign:HintAssist.IsFloating="True"
+                          materialDesign:HintAssist.Hint="Rendering Engine"
+                          SelectedValuePath="Method" 
+                          DisplayMemberPath="Name"
+                          SelectedValue="{Binding RenderingMethod, Mode=TwoWay}">
+                </ComboBox>
 
                 <CheckBox IsChecked="{Binding ShowVideoSubtitles, Mode=TwoWay}"
                           Style="{StaticResource SettingsCheckBoxStyle}">
