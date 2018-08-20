@@ -208,7 +208,7 @@
                           IsEnabled="{Binding IsMediaInactive}"
                           Style="{StaticResource SettingsComboBoxStyle}" 
                           materialDesign:HintAssist.IsFloating="True"
-                          materialDesign:HintAssist.Hint="Rendering Engine"
+                          materialDesign:HintAssist.Hint="Motore di rendering"
                           SelectedValuePath="Method" 
                           DisplayMemberPath="Name"
                           SelectedValue="{Binding RenderingMethod, Mode=TwoWay}">
