@@ -116,7 +116,7 @@
             </StackPanel>
         </GroupBox>
 
-        <GroupBox Header="Cartella multimedia" Style="{StaticResource SettingsGroupBoxStyle}">
+        <GroupBox Header="File multimediali" Style="{StaticResource SettingsGroupBoxStyle}">
             <StackPanel Orientation="Vertical">
 
                 <StackPanel Orientation="Horizontal">
