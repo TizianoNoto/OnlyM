@@ -39,7 +39,7 @@
         private readonly IActiveMediaItemsService _activeMediaItemsService;
 
         private readonly MetaDataQueueProducer _metaDataProducer = new MetaDataQueueProducer();
-        private readonly CancellationTokenSource _thumbnailCancellationTokenSource = new CancellationTokenSource();
+        private readonly CancellationTokenSource _metaDataCancellatonTokenSource = new CancellationTokenSource();
         
         private MetaDataQueueConsumer _metaDataConsumer;
         private string _blankScreenImagePath;
@@ -48,10 +48,10 @@
         public OperatorViewModel(
             IMediaProviderService mediaProviderService,
             IThumbnailService thumbnailService,
+            IMediaMetaDataService metaDataService,
             IOptionsService optionsService,
             IPageService pageService,
             IFolderWatcherService folderWatcherService,
-            IMediaMetaDataService metaDataService,
             IMediaStatusChangingService mediaStatusChangingService,
             IHiddenMediaItemsService hiddenMediaItemsService,
             IActiveMediaItemsService activeMediaItemsService,
@@ -69,8 +69,11 @@
             _thumbnailService = thumbnailService;
             _thumbnailService.ThumbnailsPurgedEvent += HandleThumbnailsPurgedEvent;
 
+            _metaDataService = metaDataService;
+
             _optionsService = optionsService;
             _optionsService.MediaFolderChangedEvent += HandleMediaFolderChangedEvent;
+            _optionsService.AutoRotateChangedEvent += HandleAutoRotateChangedEvent;
             _optionsService.AllowVideoPauseChangedEvent += HandleAllowVideoPauseChangedEvent;
             _optionsService.AllowVideoPositionSeekingChangedEvent += HandleAllowVideoPositionSeekingChangedEvent;
             _optionsService.UseInternalMediaTitlesChangedEvent += HandleUseInternalMediaTitlesChangedEvent;
@@ -99,8 +102,6 @@
             };
             _pageService.NavigationEvent += HandleNavigationEvent;
 
-            _metaDataService = metaDataService;
-
             LoadMediaItems();
             InitCommands();
 
@@ -109,13 +110,47 @@
             Messenger.Default.Register<ShutDownMessage>(this, OnShutDown);
         }
 
+        private void HandleAutoRotateChangedEvent(object sender, EventArgs e)
+        {
+            Task.Run(() =>
+            {
+                if (_optionsService.Options.AutoRotateImages)
+                {
+                    foreach (var item in MediaItems)
+                    {
+                        AutoRotateImageIfRequired(item);
+                    }
+                }
+
+                _pendingLoadMediaItems = true;
+            });
+        }
+
+        private bool AutoRotateImageIfRequired(MediaItem item)
+        {
+            if (item.MediaType.Classification == MediaClassification.Image)
+            {
+                if (GraphicsUtils.AutoRotateIfRequired(item.FilePath))
+                {
+                    // auto-rotated so refresh the thumbnail...
+                    item.ThumbnailImageSource = null;
+                    item.LastChanged = DateTime.UtcNow.Ticks;
+                    _metaDataProducer.Add(item);
+
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2213:DisposableFieldsShouldBeDisposed", MessageId = "_thumbnailCancellationTokenSource", Justification = "False Positive")]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2213:DisposableFieldsShouldBeDisposed", MessageId = "_metaDataProducer", Justification = "False Positive")]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2213:DisposableFieldsShouldBeDisposed", MessageId = "_metaDataConsumer", Justification = "False Positive")]
         public void Dispose()
         {
             _metaDataProducer?.Dispose();
-            _thumbnailCancellationTokenSource?.Dispose();
+            _metaDataCancellatonTokenSource?.Dispose();
             _metaDataConsumer?.Dispose();
         }
 
@@ -209,10 +244,11 @@
         {
             foreach (var item in MediaItems)
             {
-                var metaData = _metaDataService.GetMetaData(item.FilePath);
-                item.Name = GetMediaTitle(item.FilePath, metaData);
+                item.Name = null;
             }
 
+            FillThumbnailsAndMetaData();
+            
             _pendingLoadMediaItems = true;
         }
 
@@ -249,24 +285,38 @@
             var item = GetMediaItem(e.MediaItemId);
             if (item != null)
             {
-                item.PlaybackPositionDeciseconds = (int)(e.Position.TotalMilliseconds / 10);
+                item.PlaybackPositionDeciseconds = (int)(e.Position.TotalMilliseconds / 100);
             }
         }
 
         private void OnShutDown(ShutDownMessage message)
         {
             // cancel the thumbnail consumer thread.
-            _thumbnailCancellationTokenSource.Cancel();
+            _metaDataCancellatonTokenSource.Cancel();
         }
 
         private void LaunchThumbnailQueueConsumer()
         {
             _metaDataConsumer = new MetaDataQueueConsumer(
                 _thumbnailService,
+                _metaDataService,
+                _optionsService,
                 _metaDataProducer.Queue,
-                _thumbnailCancellationTokenSource.Token);
+                _metaDataCancellatonTokenSource.Token);
+
+            _metaDataConsumer.ItemCompletedEvent += HandleItemCompletedEvent;
 
             _metaDataConsumer.Execute();
+        }
+
+        private void HandleItemCompletedEvent(object sender, ItemMetaDataPopulatedEventArgs e)
+        {
+            var item = e.MediaItem;
+            
+            if (_optionsService.Options.AutoRotateImages)
+            {
+                AutoRotateImageIfRequired(item);
+            }
         }
 
         private void HandleFileChangesFoundEvent(object sender, EventArgs e)
@@ -658,7 +708,7 @@
             {
                 MediaItems.Remove(item);
             }
-            
+
             // add new items.
             foreach (var file in files)
             {
@@ -667,6 +717,7 @@
                     var item = CreateNewMediaItem(file);
 
                     MediaItems.Add(item);
+
                     _metaDataProducer.Add(item);
                 }
             }
@@ -691,22 +742,17 @@
 
         private MediaItem CreateNewMediaItem(MediaFile file)
         {
-            var metaData = _metaDataService.GetMetaData(file.FullPath);
-            
             return new MediaItem
             {
                 MediaType = file.MediaType,
                 Id = Guid.NewGuid(),
-                Name = GetMediaTitle(file.FullPath, metaData),
                 AllowFreezeCommand = _optionsService.Options.ShowFreezeCommand,
                 CommandPanelVisible = _optionsService.Options.ShowMediaItemCommandPanel,
                 FilePath = file.FullPath,
                 IsVisible = true,
                 LastChanged = file.LastChanged,
                 AllowPause = _optionsService.Options.AllowVideoPause,
-                AllowPositionSeeking = _optionsService.Options.AllowVideoPositionSeeking,
-                IsWaitingAnimationVisible = true,
-                DurationDeciseconds = GetMediaDuration(metaData)
+                AllowPositionSeeking = _optionsService.Options.AllowVideoPositionSeeking
             };
         }
 
@@ -728,7 +774,6 @@
                     CommandPanelVisible = _optionsService.Options.ShowMediaItemCommandPanel,
                     Name = Properties.Resources.BLANK_SCREEN,
                     FilePath = blankScreenPath,
-                    IsWaitingAnimationVisible = true,
                     LastChanged = DateTime.UtcNow.Ticks
                 };
 
@@ -764,25 +809,7 @@
 
             return _blankScreenImagePath;
         }
-
-        private int GetMediaDuration(MediaMetaData metaData)
-        {
-            return metaData != null ? (int)metaData.Duration.TotalMilliseconds / 10 : 0;
-        }
-        
-        private string GetMediaTitle(string filePath, MediaMetaData metaData)
-        {
-            if (_optionsService.Options.UseInternalMediaTitles && metaData != null)
-            {
-                if (!string.IsNullOrEmpty(metaData.Title))
-                {
-                    return metaData.Title;
-                }
-            }
-
-            return Path.GetFileNameWithoutExtension(filePath);
-        }
-        
+       
         private void SortMediaItems()
         {
             List<MediaItem> sorted = MediaItems.OrderBy(x => x.AlphaNumericName).ToList();
