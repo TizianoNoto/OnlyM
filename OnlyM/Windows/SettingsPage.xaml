@@ -200,7 +200,7 @@
 
                 <CheckBox IsChecked="{Binding AutoRotateImages, Mode=TwoWay}"
                           Style="{StaticResource SettingsCheckBoxStyle}">
-                    Auto-rotate
+                    Rotazione automatica
                 </CheckBox>
 
             </StackPanel>
