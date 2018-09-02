@@ -12,8 +12,7 @@ Se vuoi semplicemente installare l'applicazione scarica il file [OnlyMItaSetup.e
 
 ### Documentazione
 
-A breve pubblicherò la wiki in italiano per le istruzioni di base.
-Puoi intanto consultarla [in inglese](https://github.com/AntonyCorbett/OnlyM/wiki).
+Consulta la [wiki](https://github.com/AntonyCorbett/OnlyM/wiki) per le istruzioni di base.
 
 
 ### Licenza, ecc.
