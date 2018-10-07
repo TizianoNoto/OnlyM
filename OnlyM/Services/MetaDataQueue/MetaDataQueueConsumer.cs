@@ -21,6 +21,7 @@
 
         private readonly BlockingCollection<MediaItem> _collection;
         private readonly CancellationToken _cancellationToken;
+        private readonly string _ffmpegFolder;
 
         public event EventHandler<ItemMetaDataPopulatedEventArgs> ItemCompletedEvent;
 
@@ -29,11 +30,14 @@
             IMediaMetaDataService metaDataService,
             IOptionsService optionsService,
             BlockingCollection<MediaItem> metaDataProducerCollection,
+            string ffmpegFolder,
             CancellationToken cancellationToken)
         {
             _thumbnailService = thumbnailService;
             _metaDataService = metaDataService;
             _optionsService = optionsService;
+            
+            _ffmpegFolder = ffmpegFolder;
 
             _collection = metaDataProducerCollection;
             _cancellationToken = cancellationToken;
@@ -52,38 +56,38 @@
 
         private void RunConsumer()
         {
-            Task.Run(
-                () =>
+            Task.Run(() => { RunConsumerTask(); }, _cancellationToken);
+        }
+
+        private void RunConsumerTask()
+        {
+            try
+            {
+                while (!_cancellationToken.IsCancellationRequested)
                 {
-                    try
+                    var nextItem = _collection.Take(_cancellationToken);
+
+                    Log.Logger.Debug($"Consuming item {nextItem.FilePath}");
+                    PopulateThumbnailAndMetaData(nextItem);
+
+                    if (!IsPopulated(nextItem))
                     {
-                        while (!_cancellationToken.IsCancellationRequested)
-                        {
-                            var nextItem = _collection.Take(_cancellationToken);
-
-                            Log.Logger.Debug($"Consuming item {nextItem.FilePath}");
-                            PopulateThumbnailAndMetaData(nextItem);
-
-                            if (!IsPopulated(nextItem))
-                            {
-                                // put it back in the queue!
-                                ReplaceInQueue(nextItem);
-                            }
-                            else
-                            {
-                                Log.Logger.Debug($"Done item {nextItem.FilePath}");
-                                ItemCompletedEvent?.Invoke(this, new ItemMetaDataPopulatedEventArgs { MediaItem = nextItem });
-                            }
-
-                            Log.Logger.Verbose("Metadata queue size (consumer) = {QueueSize}", _collection.Count);
-                        }
+                        // put it back in the queue!
+                        ReplaceInQueue(nextItem);
                     }
-                    catch (OperationCanceledException)
+                    else
                     {
-                        Log.Logger.Debug("Metadata consumer closed");
+                        Log.Logger.Debug($"Done item {nextItem.FilePath}");
+                        ItemCompletedEvent?.Invoke(this, new ItemMetaDataPopulatedEventArgs { MediaItem = nextItem });
                     }
-                },
-                _cancellationToken);
+
+                    Log.Logger.Verbose("Metadata queue size (consumer) = {QueueSize}", _collection.Count);
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                Log.Logger.Debug("Metadata consumer closed");
+            }
         }
 
         private void ReplaceInQueue(MediaItem mediaItem)
@@ -126,7 +130,9 @@
         {
             if (!IsDurationAndNamePopulated(mediaItem))
             {
-                var metaData = _metaDataService.GetMetaData(mediaItem.FilePath);
+                var metaData = _metaDataService.GetMetaData(
+                    mediaItem.FilePath, mediaItem.MediaType, _ffmpegFolder);
+
                 if (metaData != null)
                 {
                     DispatcherHelper.CheckBeginInvokeOnUI(() =>
