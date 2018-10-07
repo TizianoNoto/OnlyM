@@ -61,7 +61,7 @@ namespace OnlyM.Properties {
         }
         
         /// <summary>
-        ///   Cerca una stringa localizzata simile a OnlyM software versione: {0}.
+        ///   Cerca una stringa localizzata simile a Only-M software versione: {0}.
         /// </summary>
         internal static string APP_VER {
             get {
