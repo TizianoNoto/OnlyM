@@ -1,4 +1,6 @@
-﻿namespace OnlyM.Services
+﻿using System.Windows.Media;
+
+namespace OnlyM.Services
 {
     using System;
     using System.Threading.Tasks;
@@ -50,6 +52,9 @@
             bool startFromPaused)
         {
             _mediaItemId = mediaItemId;
+            
+            Log.Debug($"ShowVideoOrPlayAudio - Media Id = {_mediaItemId}");
+
             _mediaClassification = mediaClassification;
             _startPosition = startOffset;
             _lastPosition = TimeSpan.Zero;
@@ -61,12 +66,13 @@
             if (startFromPaused)
             {
                 _mediaElement.Position = _startPosition;
-                await _mediaElement.Play(new Uri(mediaItemFilePath));
+                await _mediaElement.Play(new Uri(mediaItemFilePath), _mediaClassification);
                 OnMediaChangeEvent(CreateMediaEventArgs(_mediaItemId, MediaChange.Started));
             }
             else
             {
-                await _mediaElement.Play(new Uri(mediaItemFilePath));
+                Log.Debug($"Firing Started - Media Id = {_mediaItemId}");
+                await _mediaElement.Play(new Uri(mediaItemFilePath), _mediaClassification).ConfigureAwait(true);
                 OnMediaChangeEvent(CreateMediaEventArgs(_mediaItemId, MediaChange.Starting));
             }
         }
