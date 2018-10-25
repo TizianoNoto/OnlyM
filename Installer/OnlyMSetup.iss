@@ -47,13 +47,21 @@ Source: "bin\Release\x64\*"; DestDir: "{app}\x64"; Flags: ignoreversion
 Source: "bin\Release\x86\*"; DestDir: "{app}\x86"; Flags: ignoreversion
 Source: "bin\Release\AutoMapper.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "bin\Release\CommonServiceLocator.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "bin\Release\ffme.common.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "bin\Release\ffme.win.dll"; DestDir: "{app}"; Flags: ignoreversion
+
+; temp inclusion of updated ffme assemblies to correct subtitle bug
+Source: "D:\ProjectsMisc\ffmediaelement-master\Unosquare.FFME.Windows.Sample\bin\Release\ffme.common.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "D:\ProjectsMisc\ffmediaelement-master\Unosquare.FFME.Windows.Sample\bin\Release\ffme.win.dll"; DestDir: "{app}"; Flags: ignoreversion
+
+;Source: "bin\Release\ffme.common.dll"; DestDir: "{app}"; Flags: ignoreversion
+;Source: "bin\Release\ffme.win.dll"; DestDir: "{app}"; Flags: ignoreversion
+
+
 Source: "bin\Release\FFmpeg.AutoGen.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "bin\Release\FluentCommandLineParser.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "bin\Release\GalaSoft.MvvmLight.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "bin\Release\GalaSoft.MvvmLight.Extras.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "bin\Release\GalaSoft.MvvmLight.Platform.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "bin\Release\HtmlAgilityPack.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "bin\Release\ImageProcessor.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "bin\Release\MaterialDesignColors.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "bin\Release\MaterialDesignThemes.Wpf.dll"; DestDir: "{app}"; Flags: ignoreversion
@@ -64,6 +72,7 @@ Source: "bin\Release\Newtonsoft.Json.dll"; DestDir: "{app}"; Flags: ignoreversio
 Source: "bin\Release\OnlyM.Core.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "bin\Release\OnlyM.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "bin\Release\OnlyM.exe.config"; DestDir: "{app}"; Flags: ignoreversion
+Source: "bin\Release\OnlyM.Slides.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "bin\Release\policy.2.0.taglib-sharp.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "bin\Release\Serilog.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "bin\Release\Serilog.Sinks.Console.dll"; DestDir: "{app}"; Flags: ignoreversion
@@ -80,4 +89,3 @@ Name: "{commondesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: 
 
 [ThirdParty]
 UseRelativePaths=True
-

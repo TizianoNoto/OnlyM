@@ -94,6 +94,7 @@
 
             _pageService = pageService;
             _pageService.MediaChangeEvent += HandleMediaChangeEvent;
+            _pageService.SlideTransitionEvent += HandleSlideTransitionEvent;
             _pageService.MediaMonitorChangedEvent += HandleMediaMonitorChangedEvent;
             _pageService.MediaPositionChangedEvent += HandleMediaPositionChangedEvent;
             _pageService.MediaNearEndEvent += async (sender, e) =>
@@ -110,7 +111,27 @@
             Messenger.Default.Register<ShutDownMessage>(this, OnShutDown);
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2213:DisposableFieldsShouldBeDisposed", MessageId = "_thumbnailCancellationTokenSource", Justification = "False Positive")]
+        public ObservableCollectionEx<MediaItem> MediaItems { get; } = new ObservableCollectionEx<MediaItem>();
+
+        public RelayCommand<Guid> MediaControlCommand1 { get; set; }
+
+        public RelayCommand<Guid> MediaControlPauseCommand { get; set; }
+
+        public RelayCommand<Guid> HideMediaItemCommand { get; set; }
+
+        public RelayCommand<Guid> DeleteMediaItemCommand { get; set; }
+
+        public RelayCommand<Guid> OpenCommandPanelCommand { get; set; }
+
+        public RelayCommand<Guid> CloseCommandPanelCommand { get; set; }
+
+        public RelayCommand<Guid> FreezeVideoCommand { get; set; }
+
+        public RelayCommand<Guid> PreviousSlideCommand { get; set; }
+
+        public RelayCommand<Guid> NextSlideCommand { get; set; }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2213:DisposableFieldsShouldBeDisposed", MessageId = "_metaDataCancellationTokenSource", Justification = "False Positive")]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2213:DisposableFieldsShouldBeDisposed", MessageId = "_metaDataProducer", Justification = "False Positive")]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2213:DisposableFieldsShouldBeDisposed", MessageId = "_metaDataConsumer", Justification = "False Positive")]
         public void Dispose()
@@ -249,7 +270,7 @@
         private void HandleMediaPositionChangedEvent(object sender, PositionChangedEventArgs e)
         {
             var item = GetMediaItem(e.MediaItemId);
-            if (item != null)
+            if (item != null && !item.IsPaused)
             {
                 item.PlaybackPositionDeciseconds = (int)(e.Position.TotalMilliseconds / 100);
             }
@@ -272,8 +293,14 @@
                 _metaDataCancellationTokenSource.Token);
 
             _metaDataConsumer.ItemCompletedEvent += HandleItemCompletedEvent;
+            _metaDataConsumer.AllItemsCompletedEvent += HandleAllItemsCompletedEvent;
 
             _metaDataConsumer.Execute();
+        }
+
+        private void HandleAllItemsCompletedEvent(object sender, EventArgs e)
+        {
+            DispatcherHelper.CheckBeginInvokeOnUI(SortMediaItems);
         }
 
         private void HandleItemCompletedEvent(object sender, ItemMetaDataPopulatedEventArgs e)
@@ -301,14 +328,15 @@
             var monitorSpecified = _optionsService.IsMediaMonitorSpecified;
             var videoOrAudioIsActive = VideoOrAudioIsActive();
             var videoIsActive = VideoIsActive();
+            var rollingSlideshowIsActive = RollingSlideshowIsActive();
 
             foreach (var item in MediaItems)
             {
                 switch (item.MediaType.Classification)
                 {
                     case MediaClassification.Image:
-                        // cannot show an image if video or audio is playing.
-                        item.IsPlayButtonEnabled = monitorSpecified && !videoIsActive;
+                        // cannot show an image if video or rolling slideshow is playing.
+                        item.IsPlayButtonEnabled = monitorSpecified && !videoIsActive && !rollingSlideshowIsActive;
                         break;
 
                     case MediaClassification.Audio:
@@ -317,14 +345,38 @@
                         break;
 
                     case MediaClassification.Video:
-                        // cannot play a video if another video or audio is playing.
-                        item.IsPlayButtonEnabled = monitorSpecified && !videoOrAudioIsActive;
+                        // cannot play a video if another video or audio or rolling slideshow is playing.
+                        item.IsPlayButtonEnabled = monitorSpecified && !videoOrAudioIsActive && !rollingSlideshowIsActive;
+                        break;
+
+                    case MediaClassification.Slideshow:
+                        // cannot play a slideshow if video or a rolling slideshow is playing.
+                        item.IsPlayButtonEnabled = monitorSpecified && !videoIsActive && !rollingSlideshowIsActive;
                         break;
 
                     default:
                         item.IsPlayButtonEnabled = false;
                         break;
                 }
+            }
+        }
+
+        private void HandleSlideTransitionEvent(object sender, SlideTransitionEventArgs e)
+        {
+            Log.Debug($"HandleSlideTransitionEvent (id = {e.MediaItemId}, change = {e.Transition})");
+
+            var mediaItem = GetMediaItem(e.MediaItemId);
+
+            switch (e.Transition)
+            {
+                case SlideTransition.Started:
+                    mediaItem.IsMediaChanging = true;
+                    break;
+
+                case SlideTransition.Finished:
+                    mediaItem.IsMediaChanging = false;
+                    mediaItem.CurrentSlideshowIndex = e.NewSlideIndex;
+                    break;
             }
         }
 
@@ -398,6 +450,10 @@
             CloseCommandPanelCommand = new RelayCommand<Guid>(CloseCommandPanel);
 
             FreezeVideoCommand = new RelayCommand<Guid>(FreezeVideoOnLastFrame);
+
+            PreviousSlideCommand = new RelayCommand<Guid>(GotoPreviousSlide);
+
+            NextSlideCommand = new RelayCommand<Guid>(GotoNextSlide);
         }
 
         private void FreezeVideoOnLastFrame(Guid mediaItemId)
@@ -438,6 +494,30 @@
             }
         }
 
+        private void GotoPreviousSlide(Guid mediaItemId)
+        {
+            if (!_mediaStatusChangingService.IsMediaStatusChanging())
+            {
+                var mediaItem = GetMediaItem(mediaItemId);
+                if (!mediaItem.IsMediaChanging)
+                {
+                    mediaItem.CurrentSlideshowIndex = _pageService.GotoPreviousSlide();
+                }
+            }
+        }
+
+        private void GotoNextSlide(Guid mediaItemId)
+        {
+            if (!_mediaStatusChangingService.IsMediaStatusChanging())
+            {
+                var mediaItem = GetMediaItem(mediaItemId);
+                if (!mediaItem.IsMediaChanging)
+                {
+                    mediaItem.CurrentSlideshowIndex = _pageService.GotoNextSlide();
+                }
+            }
+        }
+
         private void HideMediaItem(Guid mediaItemId)
         {
             var mediaItem = GetMediaItem(mediaItemId);
@@ -475,6 +555,11 @@
         private bool IsVideo(MediaItem mediaItem)
         {
             return mediaItem.MediaType.Classification == MediaClassification.Video;
+        }
+
+        private bool IsRollingSlideshow(MediaItem mediaItem)
+        {
+            return mediaItem.IsRollingSlideshow;
         }
 
         private async Task MediaPauseControl(Guid mediaItemId)
@@ -547,6 +632,9 @@
                 case MediaClassification.Video:
                     return !VideoOrAudioIsActive();
 
+                case MediaClassification.Slideshow:
+                    return !VideoIsActive();
+
                 default:
                 case MediaClassification.Unknown:
                     return false;
@@ -583,6 +671,17 @@
             }
 
             return currentItems.Any(IsVideo);
+        }
+
+        private bool RollingSlideshowIsActive()
+        {
+            var currentItems = GetCurrentMediaItems();
+            if (currentItems == null)
+            {
+                return false;
+            }
+
+            return currentItems.Any(IsRollingSlideshow);
         }
 
         private MediaItem GetNextImageItem(MediaItem currentMediaItem)
@@ -640,7 +739,7 @@
             
             Messenger.Default.Send(new MediaListUpdatingMessage());
 
-            using (new ObservableCollectionSupression<MediaItem>(MediaItems))
+            using (new ObservableCollectionSuppression<MediaItem>(MediaItems))
             {
                 LoadMediaItemsInternal();
             }
@@ -694,9 +793,7 @@
                     _metaDataProducer.Add(item);
                 }
             }
-
-            SortMediaItems();
-
+            
             TruncateMediaItemsToMaxCount();
             
             _hiddenMediaItemsService.Init(MediaItems);
@@ -715,7 +812,7 @@
 
         private MediaItem CreateNewMediaItem(MediaFile file)
         {
-            return new MediaItem
+            var result = new MediaItem
             {
                 MediaType = file.MediaType,
                 Id = Guid.NewGuid(),
@@ -727,6 +824,8 @@
                 AllowPause = _optionsService.Options.AllowVideoPause,
                 AllowPositionSeeking = _optionsService.Options.AllowVideoPositionSeeking
             };
+
+            return result;
         }
 
         private void InsertBlankMediaItem()
@@ -800,22 +899,6 @@
                 _metaDataProducer.Add(item);
             }
         }
-
-        public ObservableCollectionEx<MediaItem> MediaItems { get; } = new ObservableCollectionEx<MediaItem>();
-
-        public RelayCommand<Guid> MediaControlCommand1 { get; set; }
-
-        public RelayCommand<Guid> MediaControlPauseCommand { get; set; }
-
-        public RelayCommand<Guid> HideMediaItemCommand { get; set; }
-
-        public RelayCommand<Guid> DeleteMediaItemCommand { get; set; }
-
-        public RelayCommand<Guid> OpenCommandPanelCommand { get; set; }
-
-        public RelayCommand<Guid> CloseCommandPanelCommand { get; set; }
-
-        public RelayCommand<Guid> FreezeVideoCommand { get; set; }
 
         private bool AutoRotateImageIfRequired(MediaItem item)
         {

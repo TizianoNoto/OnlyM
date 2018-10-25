@@ -11,6 +11,7 @@
     using Core.Utils;
     using GalaSoft.MvvmLight.Threading;
     using Models;
+    using OnlyM.Slides;
     using Serilog;
 
     internal sealed class MetaDataQueueConsumer : IDisposable
@@ -22,8 +23,6 @@
         private readonly BlockingCollection<MediaItem> _collection;
         private readonly CancellationToken _cancellationToken;
         private readonly string _ffmpegFolder;
-
-        public event EventHandler<ItemMetaDataPopulatedEventArgs> ItemCompletedEvent;
 
         public MetaDataQueueConsumer(
             IThumbnailService thumbnailService,
@@ -42,6 +41,10 @@
             _collection = metaDataProducerCollection;
             _cancellationToken = cancellationToken;
         }
+
+        public event EventHandler<ItemMetaDataPopulatedEventArgs> ItemCompletedEvent;
+
+        public event EventHandler AllItemsCompletedEvent;
 
         public void Execute()
         {
@@ -68,20 +71,29 @@
                     var nextItem = _collection.Take(_cancellationToken);
 
                     Log.Logger.Debug($"Consuming item {nextItem.FilePath}");
-                    PopulateThumbnailAndMetaData(nextItem);
 
                     if (!IsPopulated(nextItem))
                     {
-                        // put it back in the queue!
-                        ReplaceInQueue(nextItem);
-                    }
-                    else
-                    {
-                        Log.Logger.Debug($"Done item {nextItem.FilePath}");
-                        ItemCompletedEvent?.Invoke(this, new ItemMetaDataPopulatedEventArgs { MediaItem = nextItem });
-                    }
+                        PopulateThumbnailAndMetaData(nextItem);
 
-                    Log.Logger.Verbose("Metadata queue size (consumer) = {QueueSize}", _collection.Count);
+                        if (!IsPopulated(nextItem))
+                        {
+                            // put it back in the queue!
+                            ReplaceInQueue(nextItem);
+                        }
+                        else
+                        {
+                            Log.Logger.Debug($"Done item {nextItem.FilePath}");
+                            ItemCompletedEvent?.Invoke(this, new ItemMetaDataPopulatedEventArgs { MediaItem = nextItem });
+                        }
+
+                        Log.Logger.Verbose("Metadata queue size (consumer) = {QueueSize}", _collection.Count);
+
+                        if (_collection.Count == 0)
+                        {
+                            AllItemsCompletedEvent?.Invoke(this, EventArgs.Empty);
+                        }
+                    }
                 }
             }
             catch (OperationCanceledException)
@@ -106,12 +118,25 @@
         {
             PopulateThumbnail(mediaItem);
             PopulateDurationAndName(mediaItem);
+            PopulateSlideData(mediaItem);
+        }
+
+        private void PopulateSlideData(MediaItem mediaItem)
+        {
+            if (!IsSlideDataPopulated(mediaItem))
+            {
+                var sf = new SlideFile(mediaItem.FilePath);
+                mediaItem.SlideshowCount = sf.SlideCount;
+                mediaItem.SlideshowLoop = sf.Loop;
+                mediaItem.IsRollingSlideshow = sf.AutoPlay;
+            }
         }
 
         private bool IsPopulated(MediaItem mediaItem)
         {
             return IsThumbnailPopulated(mediaItem) &&
-                   IsDurationAndNamePopulated(mediaItem);
+                   IsDurationAndNamePopulated(mediaItem) &&
+                   IsSlideDataPopulated(mediaItem);
         }
 
         private bool IsThumbnailPopulated(MediaItem mediaItem)
@@ -126,6 +151,11 @@
                 !string.IsNullOrEmpty(mediaItem.Name);
         }
 
+        private bool IsSlideDataPopulated(MediaItem mediaItem)
+        {
+            return !mediaItem.IsSlideshow || mediaItem.SlideshowCount > 0;
+        }
+
         private void PopulateDurationAndName(MediaItem mediaItem)
         {
             if (!IsDurationAndNamePopulated(mediaItem))
@@ -133,14 +163,11 @@
                 var metaData = _metaDataService.GetMetaData(
                     mediaItem.FilePath, mediaItem.MediaType, _ffmpegFolder);
 
-                if (metaData != null)
+                DispatcherHelper.CheckBeginInvokeOnUI(() =>
                 {
-                    DispatcherHelper.CheckBeginInvokeOnUI(() =>
-                    {
-                        mediaItem.DurationDeciseconds = (int)(metaData.Duration.TotalSeconds * 10);
-                        mediaItem.Name = GetMediaTitle(mediaItem.FilePath, metaData);
-                    });
-                }
+                    mediaItem.DurationDeciseconds = metaData == null ? 0 : (int)(metaData.Duration.TotalSeconds * 10);
+                    mediaItem.Name = GetMediaTitle(mediaItem.FilePath, metaData);
+                });
             }
         }
 

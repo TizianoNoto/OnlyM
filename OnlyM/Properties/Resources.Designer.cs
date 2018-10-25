@@ -61,7 +61,7 @@ namespace OnlyM.Properties {
         }
         
         /// <summary>
-        ///   Cerca una stringa localizzata simile a Only-M software versione: {0}.
+        ///   Cerca una stringa localizzata simile a OnlyM software versione: {0}.
         /// </summary>
         internal static string APP_VER {
             get {
@@ -94,6 +94,24 @@ namespace OnlyM.Properties {
         internal static string CONFIRM_STOP_MEDIA {
             get {
                 return ResourceManager.GetString("CONFIRM_STOP_MEDIA", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Cerca una stringa localizzata simile a (contiene {0} diapositive scorrevoli).
+        /// </summary>
+        internal static string CONTAINS_X_ROLLING_SLIDES {
+            get {
+                return ResourceManager.GetString("CONTAINS_X_ROLLING_SLIDES", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Cerca una stringa localizzata simile a (contiene {0} diapositive).
+        /// </summary>
+        internal static string CONTAINS_X_SLIDES {
+            get {
+                return ResourceManager.GetString("CONTAINS_X_SLIDES", resourceCulture);
             }
         }
         
@@ -206,6 +224,15 @@ namespace OnlyM.Properties {
         }
         
         /// <summary>
+        ///   Cerca una stringa localizzata simile a diapositiva scorrevole {0} di {1}.
+        /// </summary>
+        internal static string ROLLING_SLIDE_X_OF_Y {
+            get {
+                return ResourceManager.GetString("ROLLING_SLIDE_X_OF_Y", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Cerca una stringa localizzata simile a Impostazioni.
         /// </summary>
         internal static string SETTINGS {
@@ -220,6 +247,15 @@ namespace OnlyM.Properties {
         internal static string SETTINGS_DISABLED {
             get {
                 return ResourceManager.GetString("SETTINGS_DISABLED", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Cerca una stringa localizzata simile a diapositiva {0} di {1}.
+        /// </summary>
+        internal static string SLIDE_X_OF_Y {
+            get {
+                return ResourceManager.GetString("SLIDE_X_OF_Y", resourceCulture);
             }
         }
         

@@ -12,6 +12,7 @@
     using Core.Services.Options;
     using MediaElementAdaption;
     using Models;
+    using OnlyM.ViewModel;
     using Serilog;
     using Services;
     using Services.Pages;
@@ -25,18 +26,13 @@
         private const int MediaConfirmStopWindowSeconds = 3;
 
         private readonly ImageDisplayManager _imageDisplayManager;
+        
         private readonly IOptionsService _optionsService;
         private readonly ISnackbarService _snackbarService;
-
         private VideoDisplayManager _videoDisplayManager;
+
         private IMediaElement _videoElement;
         private RenderingMethod _currentRenderingMethod;
-
-        public event EventHandler<MediaEventArgs> MediaChangeEvent;
-
-        public event EventHandler<PositionChangedEventArgs> MediaPositionChangedEvent;
-
-        public event EventHandler<MediaNearEndEventArgs> MediaNearEndEvent;
 
         public MediaWindow(IOptionsService optionsService, ISnackbarService snackbarService)
         {
@@ -50,8 +46,17 @@
 
             InitRenderingMethod();
 
-            SubscribeEvents();
+            SubscribeOptionsEvents();
+            SubscribeImageEvents();
         }
+
+        public event EventHandler<MediaEventArgs> MediaChangeEvent;
+
+        public event EventHandler<SlideTransitionEventArgs> SlideTransitionEvent;
+
+        public event EventHandler<PositionChangedEventArgs> MediaPositionChangedEvent;
+
+        public event EventHandler<MediaNearEndEventArgs> MediaNearEndEvent;
 
         public void UpdateRenderingMethod()
         {
@@ -61,16 +66,6 @@
             }
         }
 
-        public ImageFadeType ImageFadeType
-        {
-            set => _imageDisplayManager.ImageFadeType = value;
-        }
-
-        public FadeSpeed ImageFadeSpeed
-        {
-            set => _imageDisplayManager.ImageFadeSpeed = value;
-        }
-        
         public async Task StartMedia(
             MediaItem mediaItemToStart,
             IReadOnlyCollection<MediaItem> currentMediaItems,
@@ -87,7 +82,11 @@
                 case MediaClassification.Video:
                 case MediaClassification.Audio:
                     mediaItemToStart.PlaybackPositionChangedEvent -= HandlePlaybackPositionChangedEvent;
-                    await ShowVideoOrPlayAudio(mediaItemToStart, currentMediaItems, startFromPaused);
+                    await ShowVideoOrPlayAudioAsync(mediaItemToStart, currentMediaItems, startFromPaused);
+                    break;
+
+                case MediaClassification.Slideshow:
+                    StartSlideshow(mediaItemToStart);
                     break;
             }
         }
@@ -120,6 +119,10 @@
                     mediaItem.PlaybackPositionChangedEvent -= HandlePlaybackPositionChangedEvent;
                     await HideVideoAsync(mediaItem);
                     break;
+
+                case MediaClassification.Slideshow:
+                    StopSlideshow(mediaItem);
+                    break;
             }
         }
 
@@ -132,12 +135,22 @@
 
             Log.Logger.Information($"Pausing media {mediaItem.FilePath}");
 
-            await PauseVideoAsync(mediaItem);
+            await PauseVideoOrAudioAsync(mediaItem);
         }
 
-        private async Task PauseVideoAsync(MediaItem mediaItem)
+        public int GotoPreviousSlide()
         {
-            await _videoDisplayManager.PauseVideoAsync(mediaItem.Id);
+            return _imageDisplayManager.GotoPreviousSlide();
+        }
+
+        public int GotoNextSlide()
+        {
+            return _imageDisplayManager.GotoNextSlide();
+        }
+
+        private async Task PauseVideoOrAudioAsync(MediaItem mediaItem)
+        {
+            await _videoDisplayManager.PauseVideoOrAudioAsync(mediaItem.Id);
             mediaItem.PlaybackPositionChangedEvent += HandlePlaybackPositionChangedEvent;
         }
 
@@ -156,12 +169,24 @@
             await _videoDisplayManager.HideVideoAsync(mediaItem.Id);
         }
 
-        private void HideImage(IReadOnlyCollection<MediaItem> mediaItems)
+        private void HideImageOrSlideshow(IReadOnlyCollection<MediaItem> mediaItems)
         {
-            var imageItem = mediaItems?.SingleOrDefault(x => x.MediaType.Classification == MediaClassification.Image);
+            var imageItem = mediaItems?.SingleOrDefault(
+                x => x.MediaType.Classification == MediaClassification.Image ||
+                     x.MediaType.Classification == MediaClassification.Slideshow);
+
             if (imageItem != null)
             {
-                _imageDisplayManager.HideImage(imageItem.Id);
+                switch (imageItem.MediaType.Classification)
+                {
+                    case MediaClassification.Image:
+                        _imageDisplayManager.HideSingleImage(imageItem.Id);
+                        break;
+
+                    case MediaClassification.Slideshow:
+                        _imageDisplayManager.StopSlideshow(imageItem.Id);
+                        break;
+                }
             }
         }
 
@@ -169,40 +194,47 @@
         {
             if (mediaItem != null)
             {
-                _imageDisplayManager.HideImage(mediaItem.Id);
+                _imageDisplayManager.HideSingleImage(mediaItem.Id);
             }
         }
 
         private void ShowImage(MediaItem mediaItem)
         {
-            _imageDisplayManager.ShowImage(
-                mediaItem.FilePath, 
-                _optionsService.Options.ImageScreenPosition,
-                mediaItem.Id, 
-                mediaItem.IsBlankScreen);
+            _imageDisplayManager.ShowSingleImage(mediaItem.FilePath, mediaItem.Id, mediaItem.IsBlankScreen);
         }
 
-        private Task ShowVideoOrPlayAudio(
+        private void StartSlideshow(MediaItem mediaItem)
+        {
+            mediaItem.CurrentSlideshowIndex = 0;
+            _imageDisplayManager.StartSlideshow(mediaItem.FilePath, mediaItem.Id);
+        }
+
+        private void StopSlideshow(MediaItem mediaItem)
+        {
+            _imageDisplayManager.StopSlideshow(mediaItem.Id);
+        }
+
+        private async Task ShowVideoOrPlayAudioAsync(
             MediaItem mediaItemToStart,
             IReadOnlyCollection<MediaItem> currentMediaItems,
             bool startFromPaused)
         {
-            if (mediaItemToStart.MediaType.Classification != MediaClassification.Audio)
-            {
-                HideImage(currentMediaItems);
-            }
-
             var startPosition = TimeSpan.FromMilliseconds(mediaItemToStart.PlaybackPositionDeciseconds * 100);
 
             _videoDisplayManager.ShowSubtitles = _optionsService.Options.ShowVideoSubtitles;
 
-            return _videoDisplayManager.ShowVideoOrPlayAudio(
-                mediaItemToStart.FilePath, 
+            await _videoDisplayManager.ShowVideoOrPlayAudio(
+                mediaItemToStart.FilePath,
                 _optionsService.Options.VideoScreenPosition,
                 mediaItemToStart.Id,
                 mediaItemToStart.MediaType.Classification,
-                startPosition, 
+                startPosition,
                 startFromPaused);
+
+            if (mediaItemToStart.MediaType.Classification != MediaClassification.Audio)
+            {
+                HideImageOrSlideshow(currentMediaItems);
+            }
         }
 
         private void WindowLoaded(object sender, RoutedEventArgs e)
@@ -218,49 +250,75 @@
 
             if (!e.Cancel)
             {
-                UnsubscribeEvents();
+                UnsubscribeOptionsEvents();
+                UnsubscribeImageEvents();
+                UnsubscribeVideoEvents();
             }
         }
 
-        private void SubscribeEvents()
+        private void SubscribeOptionsEvents()
         {
             _optionsService.ShowSubtitlesChangedEvent += HandleShowSubtitlesChangedEvent;
             _optionsService.ImageScreenPositionChangedEvent += HandleImageScreenPositionChangedEvent;
             _optionsService.VideoScreenPositionChangedEvent += HandleVideoScreenPositionChangedEvent;
-
-            _imageDisplayManager.MediaChangeEvent += HandleMediaChangeEvent;
-
-            SubscribeVideoDisplayManagerEvents();
         }
 
-        private void SubscribeVideoDisplayManagerEvents()
+        private void SubscribeImageEvents()
+        { 
+            _imageDisplayManager.MediaChangeEvent += HandleMediaChangeEvent;
+            _imageDisplayManager.SlideTransitionEvent += HandleSlideTransitionEvent;
+        }
+
+        private void SubscribeVideoEvents()
         {
             _videoDisplayManager.MediaChangeEvent += HandleMediaChangeEvent;
             _videoDisplayManager.MediaPositionChangedEvent += HandleMediaPositionChangedEvent;
             _videoDisplayManager.MediaNearEndEvent += HandleMediaNearEndEvent;
+            _videoDisplayManager.SubtitleEvent += HandleMediaFoundationSubtitleEvent;
         }
 
-        private void UnsubscribeEvents()
+        private void HandleMediaFoundationSubtitleEvent(object sender, Core.Subtitles.SubtitleEventArgs e)
+        {
+            var vm = (MediaViewModel)DataContext;
+            if (e.Text == null)
+            {
+                vm.SubTitleText = null;
+            }
+            else
+            {
+                vm.SubTitleText = string.Join(Environment.NewLine, e.Text);
+            }
+        }
+
+        private void UnsubscribeOptionsEvents()
         {
             _optionsService.ShowSubtitlesChangedEvent -= HandleShowSubtitlesChangedEvent;
             _optionsService.ImageScreenPositionChangedEvent -= HandleImageScreenPositionChangedEvent;
             _optionsService.VideoScreenPositionChangedEvent -= HandleVideoScreenPositionChangedEvent;
-
-            _imageDisplayManager.MediaChangeEvent -= HandleMediaChangeEvent;
-
-            UnsubscribeVideoDisplayManagerEvents();
         }
 
-        private void UnsubscribeVideoDisplayManagerEvents()
+        private void UnsubscribeImageEvents()
+        {
+            _imageDisplayManager.MediaChangeEvent -= HandleMediaChangeEvent;
+            _imageDisplayManager.SlideTransitionEvent -= HandleSlideTransitionEvent;
+        }
+
+        private void UnsubscribeVideoEvents()
         {
             _videoDisplayManager.MediaChangeEvent -= HandleMediaChangeEvent;
             _videoDisplayManager.MediaPositionChangedEvent -= HandleMediaPositionChangedEvent;
             _videoDisplayManager.MediaNearEndEvent -= HandleMediaNearEndEvent;
+            _videoDisplayManager.SubtitleEvent -= HandleMediaFoundationSubtitleEvent;
         }
 
         private void HandleMediaChangeEvent(object sender, MediaEventArgs e)
         {
             MediaChangeEvent?.Invoke(this, e);
+        }
+
+        private void HandleSlideTransitionEvent(object sender, SlideTransitionEventArgs e)
+        {
+            SlideTransitionEvent?.Invoke(this, e);
         }
 
         private void HandleMediaPositionChangedEvent(object sender, PositionChangedEventArgs e)
@@ -308,6 +366,7 @@
         private void HandleVideoScreenPositionChangedEvent(object sender, EventArgs e)
         {
             ScreenPositionHelper.SetScreenPosition(_videoElement.FrameworkElement, _optionsService.Options.VideoScreenPosition);
+            ScreenPositionHelper.SetSubtitleBlockScreenPosition(SubtitleBlock, _optionsService.Options.VideoScreenPosition);
         }
 
         private void HandleImageScreenPositionChangedEvent(object sender, EventArgs e)
@@ -336,12 +395,12 @@
 
             if (_videoDisplayManager != null)
             {
-                UnsubscribeVideoDisplayManagerEvents();
+                UnsubscribeVideoEvents();
             }
 
-            _videoDisplayManager = new VideoDisplayManager(_videoElement);
-
-            SubscribeVideoDisplayManagerEvents();
+            _videoDisplayManager = new VideoDisplayManager(_videoElement, SubtitleBlock);
+            
+            SubscribeVideoEvents();
         }
     }
 }

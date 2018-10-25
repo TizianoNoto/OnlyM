@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="APP_VER" xml:space="preserve">
-    <value>Only-M software versione: {0}</value>
+    <value>OnlyM software versione: {0}</value>
   </data>
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
   <data name="blank" type="System.Resources.ResXFileRef, System.Windows.Forms">
@@ -177,5 +177,17 @@
   </data>
   <data name="NO_DESELECT_MONITOR" xml:space="preserve">
     <value>Impossibile deselezionare monitor durante la riproduzione</value>
+  </data>
+  <data name="CONTAINS_X_SLIDES" xml:space="preserve">
+    <value>(contiene {0} diapositive)</value>
+  </data>
+  <data name="SLIDE_X_OF_Y" xml:space="preserve">
+    <value>diapositiva {0} di {1}</value>
+  </data>
+  <data name="CONTAINS_X_ROLLING_SLIDES" xml:space="preserve">
+    <value>(contiene {0} diapositive scorrevoli)</value>
+  </data>
+  <data name="ROLLING_SLIDE_X_OF_Y" xml:space="preserve">
+    <value>diapositiva scorrevole {0} di {1}</value>
   </data>
 </root>

@@ -96,6 +96,37 @@
             return result;
         }
 
+        public static byte[] CreateThumbnailOfImage(BitmapImage srcBmp, int maxPixelDimension)
+        {
+            var factorWidth = (double)maxPixelDimension / srcBmp.PixelWidth;
+            var factorHeight = (double)maxPixelDimension / srcBmp.PixelHeight;
+
+            if (factorHeight >= 1 && factorWidth >= 1)
+            {
+                using (var memoryStream = new MemoryStream())
+                {
+                    BitmapEncoder encoder = new PngBitmapEncoder();
+                    encoder.Frames.Add(BitmapFrame.Create(srcBmp));
+
+                    encoder.Save(memoryStream);
+                    return memoryStream.ToArray();
+                }
+            }
+
+            var factor = Math.Min(factorWidth, factorHeight);
+
+            var t = new TransformedBitmap(srcBmp, new ScaleTransform(factor, factor));
+
+            using (var memoryStream = new MemoryStream())
+            {
+                BitmapEncoder encoder = new PngBitmapEncoder();
+                encoder.Frames.Add(BitmapFrame.Create(t));
+
+                encoder.Save(memoryStream);
+                return memoryStream.ToArray();
+            }
+        }
+
         public static ImageSource ByteArrayToImage(byte[] imageData)
         {
             if (imageData == null)
@@ -130,7 +161,7 @@
         /// <summary>
         /// Creates the thumbnail for the specified video.
         /// </summary>
-        /// <param name="originalPath">The original videoe path.</param>
+        /// <param name="originalPath">The original video path.</param>
         /// <param name="ffmpegFolder">The ffmpeg installation folder.</param>
         /// <param name="useEmbeddedWhereAvailable">Use an embedded thumbnail if available.</param>
         /// <returns>The temporary thumbnail image file.</returns>
@@ -167,6 +198,33 @@
             }
 
             return null;
+        }
+
+        public static bool GenerateSubtitleFile(string ffmpegFolder, string videoFilePath, string destinationSrtFilePath)
+        {
+            try
+            {
+                var arguments = new StringBuilder();
+
+                arguments.Append("-i ");
+                arguments.Append("\"");
+                arguments.Append(videoFilePath);
+                arguments.Append("\" ");
+                arguments.Append("-map 0:s:0 ");
+                arguments.Append("\"");
+                arguments.Append(destinationSrtFilePath);
+                arguments.Append("\" ");
+
+                ExecuteFFMpeg(ffmpegFolder, arguments.ToString());
+
+                return System.IO.File.Exists(destinationSrtFilePath);
+            }
+            catch (Exception ex)
+            {
+                Log.Logger.Error(ex, $"Could not create subtitle file for video: {videoFilePath}");
+            }
+
+            return false;
         }
 
         // ReSharper disable once InconsistentNaming
@@ -247,6 +305,7 @@
             return Path.Combine(tempThumbnailFolder, Path.ChangeExtension(origFileName, ".png"));
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times", Justification = "trust taglib objects behave properly")]
         private static bool ImageRequiresRotation(string imageFilePath)
         {
             using (var tf = TagLib.File.Create(imageFilePath))

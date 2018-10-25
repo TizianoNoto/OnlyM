@@ -16,6 +16,8 @@
 
         event EventHandler<MediaEventArgs> MediaChangeEvent;
 
+        event EventHandler<SlideTransitionEventArgs> SlideTransitionEvent;
+
         event EventHandler<PositionChangedEventArgs> MediaPositionChangedEvent;
 
         event EventHandler MediaWindowOpenedEvent;
@@ -32,6 +34,12 @@
 
         string SettingsPageName { get; }
 
+        bool ApplicationIsClosing { get; }
+
+        bool IsMediaWindowVisible { get; }
+
+        ScrollViewer ScrollViewer { get; set; }
+
         void GotoOperatorPage();
 
         void GotoSettingsPage();
@@ -39,10 +47,6 @@
         FrameworkElement GetPage(string pageName);
         
         void OpenMediaWindow(bool requiresVisibleWindow);
-
-        bool ApplicationIsClosing { get; }
-
-        bool IsMediaWindowVisible { get; }
         
         Task StartMedia(MediaItem mediaItemToStart, IReadOnlyCollection<MediaItem> currentMediaItems, bool startFromPaused);
 
@@ -52,6 +56,8 @@
 
         void CacheImageItem(MediaItem mediaItem);
 
-        ScrollViewer ScrollViewer { get; set; }
+        int GotoPreviousSlide();
+
+        int GotoNextSlide();
     }
 }

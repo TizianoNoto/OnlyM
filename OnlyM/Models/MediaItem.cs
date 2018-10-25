@@ -11,10 +11,31 @@
         private static readonly SolidColorBrush ImageIconBrush = new SolidColorBrush(Colors.DarkGreen);
         private static readonly SolidColorBrush AudioIconBrush = new SolidColorBrush(Colors.CornflowerBlue);
         private static readonly SolidColorBrush VideoIconBrush = new SolidColorBrush(Colors.Chocolate);
+        private static readonly SolidColorBrush SlideshowIconBrush = new SolidColorBrush(Colors.BlueViolet);
         private static readonly SolidColorBrush UnknownIconBrush = new SolidColorBrush(Colors.Crimson);
         private static readonly SolidColorBrush GreenBrush = new SolidColorBrush(Colors.DarkGreen);
         private static readonly SolidColorBrush BlackBrush = new SolidColorBrush(Colors.Black);
         private static readonly SolidColorBrush GrayBrush = new SolidColorBrush(Colors.DarkGray);
+
+        private bool _isMediaChanging;
+        private bool _commandPanelVisible;
+        private bool _pauseOnLastFrame;
+        private bool _isCommandPanelOpen;
+        private bool _allowFreezeCommand;
+        private bool _isVisible;
+        private string _name;
+        private bool _isPaused;
+        private ImageSource _thumbnailImageSource;
+        private bool _isMediaActive;
+        private bool _isPlayButtonEnabled;
+        private bool _allowPositionSeeking;
+        private int _playbackPositionDeciseconds;
+        private bool _allowPause;
+        private string _playbackTimeString = GenerateTimeString(0);
+        private int _durationDeciseconds;
+        private int _currentSlideshowIndex;
+        private int _slideshowCount;
+        private bool _isRollingSlideshow;
 
         public event EventHandler PlaybackPositionChangedEvent;
 
@@ -23,8 +44,6 @@
         public bool IsVideo => MediaType.Classification == MediaClassification.Video; 
 
         public bool IsBlankScreen { get; set; }
-
-        private bool _commandPanelVisible;
 
         public bool CommandPanelVisible
         {
@@ -44,9 +63,7 @@
                 }
             }
         }
-
-        private bool _pauseOnLastFrame;
-
+        
         public bool PauseOnLastFrame
         {
             get => _pauseOnLastFrame;
@@ -59,9 +76,7 @@
                 }
             }
         }
-
-        private bool _allowFreezeCommand;
-
+        
         public bool AllowFreezeCommand
         {
             get => _allowFreezeCommand;
@@ -78,8 +93,6 @@
 
         public bool ShouldDisplayFreezeCommand => IsVideo && AllowFreezeCommand;
 
-        private bool _isCommandPanelOpen;
-
         public bool IsCommandPanelOpen
         {
             get => _isCommandPanelOpen;
@@ -92,9 +105,7 @@
                 }
             }
         }
-
-        private bool _isVisible;
-
+        
         public bool IsVisible
         {
             get => _isVisible;
@@ -109,8 +120,6 @@
         }
 
         public bool CommandPanelEnabled => !IsBlankScreen && !IsMediaActive;
-
-        private string _name;
 
         public string Name
         {
@@ -149,9 +158,7 @@
         public string FilePath { get; set; }
 
         public long LastChanged { get; set; }
-
-        private bool _isPaused;
-
+        
         public bool IsPaused
         {
             get => _isPaused;
@@ -175,8 +182,6 @@
                 : "Pause";
         
         public SupportedMediaType MediaType { get; set; }
-
-        private ImageSource _thumbnailImageSource;
 
         public ImageSource ThumbnailImageSource
         {
@@ -203,8 +208,6 @@
 
         public bool IsStopButtonVisible => IsMediaActive && !IsPreparingMedia;
 
-        private bool _isMediaActive;
-
         public bool IsMediaActive
         {
             get => _isMediaActive;
@@ -222,16 +225,12 @@
                     RaisePropertyChanged(nameof(PlaybackTimeColorBrush));
                     RaisePropertyChanged(nameof(DurationColorBrush));
                     RaisePropertyChanged(nameof(CommandPanelEnabled));
+                    RaisePropertyChanged(nameof(IsPreviousSlideButtonEnabled));
+                    RaisePropertyChanged(nameof(IsNextSlideButtonEnabled));
+                    RaisePropertyChanged(nameof(SlideshowProgressString));
                 }
             }
         }
-
-        private static string GenerateTimeString(long milliseconds)
-        {
-            return TimeSpan.FromMilliseconds(milliseconds).ToString(@"hh\:mm\:ss");
-        }
-
-        private bool _isMediaChanging;
 
         public bool IsMediaChanging
         {
@@ -245,9 +244,7 @@
                 }
             }
         }
-
-        private bool _isPlayButtonEnabled;
-
+        
         public bool IsPlayButtonEnabled
         {
             get => _isPlayButtonEnabled;
@@ -261,13 +258,67 @@
             }
         }
 
+        public int SlideshowCount
+        {
+            get => _slideshowCount;
+            set
+            {
+                if (_slideshowCount != value)
+                {
+                    _slideshowCount = value;
+                    RaisePropertyChanged();
+                    RaisePropertyChanged(nameof(SlideshowProgressString));
+                }
+            }
+        }
+
+        public bool IsRollingSlideshow
+        {
+            get => _isRollingSlideshow;
+            set
+            {
+                if (_isRollingSlideshow != value)
+                {
+                    _isRollingSlideshow = value;
+                    RaisePropertyChanged();
+                    RaisePropertyChanged(nameof(SlideshowProgressString));
+                }
+            }
+        }
+
+        public bool SlideshowLoop { get; set; }
+
+        public int CurrentSlideshowIndex
+        {
+            get => _currentSlideshowIndex;
+            set
+            {
+                if (_currentSlideshowIndex != value)
+                {
+                    _currentSlideshowIndex = value;
+                    RaisePropertyChanged();
+                    RaisePropertyChanged(nameof(IsPreviousSlideButtonEnabled));
+                    RaisePropertyChanged(nameof(IsNextSlideButtonEnabled));
+                    RaisePropertyChanged(nameof(SlideshowProgressString));
+                }
+            }
+        }
+        
+        public bool IsPreviousSlideButtonEnabled => 
+            MediaType.Classification == MediaClassification.Slideshow && 
+            IsMediaActive &&
+            (SlideshowLoop || CurrentSlideshowIndex > 0);
+
+        public bool IsNextSlideButtonEnabled => 
+            MediaType.Classification == MediaClassification.Slideshow && 
+            IsMediaActive &&
+            (SlideshowLoop || CurrentSlideshowIndex < SlideshowCount - 1);
+
         public bool HasDuration =>
             MediaType.Classification == MediaClassification.Audio ||
             MediaType.Classification == MediaClassification.Video;
 
         public bool HasDurationAndIsPlaying => HasDuration && IsMediaActive && !IsPaused;
-
-        private bool _allowPositionSeeking;
 
         public bool AllowPositionSeeking
         {
@@ -282,9 +333,7 @@
                 }
             }
         }
-
-        private bool _allowPause;
-
+        
         public bool AllowPause
         {
             get => _allowPause;
@@ -301,12 +350,39 @@
 
         public bool IsPauseButtonVisible => HasDuration && IsMediaActive && AllowPause;
 
+        public bool IsSlideshow => MediaType.Classification == MediaClassification.Slideshow;
+
         public bool IsSliderVisible => 
             HasDuration && 
             AllowPositionSeeking && 
             (!IsMediaActive || IsPaused);
 
-        private int _playbackPositionDeciseconds;
+        public string SlideshowProgressString
+        {
+            get
+            {
+                if (!IsSlideshow)
+                {
+                    return null;
+                }
+
+                if (!IsMediaActive)
+                {
+                    return string.Format(
+                        IsRollingSlideshow
+                            ? Properties.Resources.CONTAINS_X_ROLLING_SLIDES
+                            : Properties.Resources.CONTAINS_X_SLIDES,
+                        SlideshowCount);
+                }
+
+                return string.Format(
+                    IsRollingSlideshow
+                        ? Properties.Resources.ROLLING_SLIDE_X_OF_Y
+                        : Properties.Resources.SLIDE_X_OF_Y, 
+                    CurrentSlideshowIndex + 1, 
+                    SlideshowCount);
+            }
+        }
 
         public int PlaybackPositionDeciseconds
         {
@@ -324,9 +400,7 @@
                 }
             }
         }
-
-        private string _playbackTimeString = GenerateTimeString(0);
-
+        
         public string PlaybackTimeString
         {
             get => _playbackTimeString;
@@ -341,9 +415,7 @@
         }
 
         public string DurationString => GenerateTimeString(_durationDeciseconds * 100);
-
-        private int _durationDeciseconds;
-
+        
         public int DurationDeciseconds
         {
             get => _durationDeciseconds;
@@ -386,6 +458,9 @@
                     case MediaClassification.Audio:
                         return AudioIconBrush;
 
+                    case MediaClassification.Slideshow:
+                        return SlideshowIconBrush;
+
                     default:
                         return UnknownIconBrush;
                 }
@@ -407,6 +482,9 @@
                     case MediaClassification.Audio:
                         return "VolumeHigh";
 
+                    case MediaClassification.Slideshow:
+                        return "CameraBurst";
+
                     default:
                         return "Question";
                 }
@@ -414,6 +492,11 @@
         }
 
         public int CommandPanelBtnColWidth => CommandPanelVisible ? 12 : 0;
+
+        private static string GenerateTimeString(long milliseconds)
+        {
+            return TimeSpan.FromMilliseconds(milliseconds).ToString(@"hh\:mm\:ss");
+        }
 
         private void OnPlaybackPositionChangedEvent()
         {

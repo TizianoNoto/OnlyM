@@ -1,8 +1,7 @@
-﻿using System.IO;
-
-namespace OnlyM.Core.Services.Media
+﻿namespace OnlyM.Core.Services.Media
 {
     using System;
+    using System.IO;
     using Models;
     using Serilog;
 
@@ -16,9 +15,18 @@ namespace OnlyM.Core.Services.Media
         {
             try
             {
-                return mediaType.Classification == MediaClassification.Video 
-                    ? GetVideoMetaData(mediaItemFilePath, ffmpegFolder) 
-                    : GetNonVideoMetaData(mediaItemFilePath);
+                switch (mediaType.Classification)
+                {
+                    case MediaClassification.Video:
+                        return GetVideoMetaData(mediaItemFilePath, ffmpegFolder);
+
+                    case MediaClassification.Audio:
+                    case MediaClassification.Image:
+                        return GetNonVideoMetaData(mediaItemFilePath);
+
+                    case MediaClassification.Slideshow:
+                        return null;
+                }
             }
             catch (System.IO.IOException)
             {

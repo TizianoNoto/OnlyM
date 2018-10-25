@@ -6,6 +6,7 @@
     using System.IO;
     using Database;
     using Models;
+    using OnlyM.Slides;
     using Options;
     using Serilog;
     using Utils;
@@ -30,13 +31,13 @@
             return (byte[])converter.ConvertTo(bmp, typeof(byte[]));
         });
 
-        public event EventHandler ThumbnailsPurgedEvent;
-
         public ThumbnailService(IDatabaseService databaseService, IOptionsService optionsService)
         {
             _databaseService = databaseService;
             _optionsService = optionsService;
         }
+
+        public event EventHandler ThumbnailsPurgedEvent;
 
         public byte[] GetThumbnail(
             string originalPath, 
@@ -107,9 +108,24 @@
                 case MediaClassification.Audio:
                     return _standardAudioThumbnail.Value;
 
+                case MediaClassification.Slideshow:
+                    return GetSlideshowThumbnail(originalPath);
+
                 default:
                     return null;
             }
+        }
+
+        private byte[] GetSlideshowThumbnail(string originalPath)
+        {
+            var file = new SlideFile(originalPath);
+            if (file.SlideCount == 0)
+            {
+                return _standardUnknownThumbnail.Value;
+            }
+
+            var slide = file.GetSlide(0);
+            return GraphicsUtils.CreateThumbnailOfImage(slide.Image, MaxPixelDimension);
         }
 
         private void OnThumbnailsPurgedEvent()

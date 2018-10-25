@@ -39,22 +39,6 @@
         private double _operatorPageScrollerPosition;
         private double _settingsPageScrollerPosition;
         
-        public event EventHandler MediaMonitorChangedEvent;
-
-        public event EventHandler<NavigationEventArgs> NavigationEvent;
-
-        public event EventHandler<MediaEventArgs> MediaChangeEvent;
-
-        public event EventHandler<PositionChangedEventArgs> MediaPositionChangedEvent;
-
-        public event EventHandler MediaWindowOpenedEvent;
-
-        public event EventHandler MediaWindowClosedEvent;
-
-        public event EventHandler<WindowVisibilityChangedEventArgs> MediaWindowVisibilityChanged;
-        
-        public event EventHandler<MediaNearEndEventArgs> MediaNearEndEvent;
-
         public PageService(
             IMonitorsService monitorsService,
             IOptionsService optionsService,
@@ -65,9 +49,7 @@
             _optionsService = optionsService;
             _snackbarService = snackbarService;
             _activeMediaItemsService = activeMediaItemsService;
-
-            _optionsService.ImageFadeTypeChangedEvent += HandleImageFadeTypeChangedEvent;
-            _optionsService.ImageFadeSpeedChangedEvent += HandleImageFadeSpeedChangedEvent;
+            
             _optionsService.MediaMonitorChangedEvent += HandleMediaMonitorChangedEvent;
             _optionsService.PermanentBackdropChangedEvent += HandlePermanentBackdropChangedEvent;
             _optionsService.RenderingMethodChangedEvent += HandleRenderingMethodChangedEvent;
@@ -77,6 +59,24 @@
             Messenger.Default.Register<ShutDownMessage>(this, OnShutDown);
         }
 
+        public event EventHandler MediaMonitorChangedEvent;
+
+        public event EventHandler<NavigationEventArgs> NavigationEvent;
+
+        public event EventHandler<MediaEventArgs> MediaChangeEvent;
+
+        public event EventHandler<SlideTransitionEventArgs> SlideTransitionEvent;
+
+        public event EventHandler<PositionChangedEventArgs> MediaPositionChangedEvent;
+
+        public event EventHandler MediaWindowOpenedEvent;
+
+        public event EventHandler MediaWindowClosedEvent;
+
+        public event EventHandler<WindowVisibilityChangedEventArgs> MediaWindowVisibilityChanged;
+
+        public event EventHandler<MediaNearEndEventArgs> MediaNearEndEvent;
+
         public bool ApplicationIsClosing { get; private set; }
 
         public ScrollViewer ScrollViewer { get; set; }
@@ -84,6 +84,12 @@
         public string OperatorPageName => "OperatorPage";
 
         public string SettingsPageName => "SettingsPage";
+
+        public bool AllowMediaWindowToClose { get; set; }
+
+        public bool IsMediaWindowVisible => _mediaWindow != null &&
+                                            _mediaWindow.IsVisible &&
+                                            _mediaWindow.Visibility == Visibility.Visible;
 
         public void GotoOperatorPage()
         {
@@ -93,7 +99,10 @@
 
         public void GotoSettingsPage()
         {
+#pragma warning disable SA1312 // Variable names must begin with lower-case letter
             var _ = _settingsPage.Value;   // ensure created otherwise doesn't receive navigation event
+#pragma warning restore SA1312 // Variable names must begin with lower-case letter
+
             _operatorPageScrollerPosition = ScrollViewer.VerticalOffset;
             OnNavigationEvent(new NavigationEventArgs { PageName = SettingsPageName });
         }
@@ -142,14 +151,22 @@
             }
         }
 
-        public bool AllowMediaWindowToClose { get; set; }
-
         public void CacheImageItem(MediaItem mediaItem)
         {
             if (_mediaWindow != null && mediaItem != null)
             {
                 _mediaWindow.CacheImageItem(mediaItem);
             }
+        }
+
+        public int GotoPreviousSlide()
+        {
+            return _mediaWindow.GotoPreviousSlide();
+        }
+
+        public int GotoNextSlide()
+        {
+            return _mediaWindow.GotoNextSlide();
         }
 
         public async Task StartMedia(
@@ -188,10 +205,6 @@
                 await _mediaWindow.PauseMediaAsync(mediaItem);
             }
         }
-
-        public bool IsMediaWindowVisible => _mediaWindow != null && 
-                                            _mediaWindow.IsVisible && 
-                                            _mediaWindow.Visibility == Visibility.Visible;
 
         private void LocateWindowAtOrigin(Window window, Screen monitor)
         {
@@ -268,20 +281,11 @@
             }
         }
         
-        private void OnMediaMonitorChangedEvent()
-        {
-            MediaMonitorChangedEvent?.Invoke(this, EventArgs.Empty);
-        }
-
         private void CreateMediaWindow()
         {
             AllowMediaWindowToClose = false;
 
-            _mediaWindow = new MediaWindow(_optionsService, _snackbarService)
-            {
-                ImageFadeType = _optionsService.Options.ImageFadeType,
-                ImageFadeSpeed = _optionsService.Options.ImageFadeSpeed
-            };
+            _mediaWindow = new MediaWindow(_optionsService, _snackbarService);
 
             SubscribeMediaWindowEvents();
         }
@@ -289,6 +293,7 @@
         private void SubscribeMediaWindowEvents()
         {
             _mediaWindow.MediaChangeEvent += HandleMediaChangeEvent;
+            _mediaWindow.SlideTransitionEvent += HandleSlideTransitionEvent;
             _mediaWindow.MediaPositionChangedEvent += HandleMediaPositionChangedEvent;
             _mediaWindow.MediaNearEndEvent += HandleMediaNearEndEvent;
             _mediaWindow.IsVisibleChanged += HandleMediaWindowVisibility;
@@ -303,6 +308,7 @@
         private void UnsubscribeMediaWindowEvents()
         {
             _mediaWindow.MediaChangeEvent -= HandleMediaChangeEvent;
+            _mediaWindow.SlideTransitionEvent -= HandleSlideTransitionEvent;
             _mediaWindow.MediaPositionChangedEvent -= HandleMediaPositionChangedEvent;
             _mediaWindow.MediaNearEndEvent -= HandleMediaNearEndEvent;
             _mediaWindow.IsVisibleChanged -= HandleMediaWindowVisibility;
@@ -333,6 +339,11 @@
             MediaNearEndEvent?.Invoke(this, e);
         }
 
+        private void HandleSlideTransitionEvent(object sender, SlideTransitionEventArgs e)
+        {
+            SlideTransitionEvent?.Invoke(this, e);
+        }
+
         private void HandleMediaChangeEvent(object sender, MediaEventArgs e)
         {
             switch (e.Change)
@@ -347,7 +358,7 @@
                     break;
             }
 
-            OnMediaChangeEvent(e);
+            MediaChangeEvent?.Invoke(this, e);
         }
 
         private void ManageMediaWindowVisibility()
@@ -361,33 +372,12 @@
 
         private bool AnyActiveMediaRequiringVisibleMediaWindow()
         {
-            return _activeMediaItemsService.Any(MediaClassification.Image, MediaClassification.Video);
-        }
-
-        private void HandleImageFadeTypeChangedEvent(object sender, EventArgs e)
-        {
-            if (_mediaWindow != null)
-            {
-                _mediaWindow.ImageFadeType = _optionsService.Options.ImageFadeType;
-            }
-        }
-
-        private void HandleImageFadeSpeedChangedEvent(object sender, EventArgs e)
-        {
-            if (_mediaWindow != null)
-            {
-                _mediaWindow.ImageFadeSpeed = _optionsService.Options.ImageFadeSpeed;
-            }
+            return _activeMediaItemsService.Any(MediaClassification.Image, MediaClassification.Video, MediaClassification.Slideshow);
         }
 
         private void HandleMediaMonitorChangedEvent(object sender, MonitorChangedEventArgs e)
         {
             UpdateMediaMonitor(e.OriginalMonitorId);
-        }
-
-        private void OnMediaChangeEvent(MediaEventArgs e)
-        {
-            MediaChangeEvent?.Invoke(this, e);
         }
 
         private void UpdateMediaMonitor(string originalMonitorId)
@@ -404,7 +394,7 @@
                     CloseMediaWindow();
                 }
 
-                OnMediaMonitorChangedEvent();
+                MediaMonitorChangedEvent?.Invoke(this, EventArgs.Empty);
                 System.Windows.Application.Current.MainWindow?.Activate();
             }
             catch (Exception ex)
