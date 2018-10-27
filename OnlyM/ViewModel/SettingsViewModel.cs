@@ -656,8 +656,8 @@
             // don't localize these strings!
             return new List<RenderingMethodItem>
             {
-                new RenderingMethodItem { Method = RenderingMethod.MediaFoundation, Name = "Media Foundation" },
-                new RenderingMethodItem { Method = RenderingMethod.Ffmpeg, Name = "Ffmpeg" }
+                new RenderingMethodItem { Method = RenderingMethod.MediaFoundation, Name = @"Media Foundation" },
+                new RenderingMethodItem { Method = RenderingMethod.Ffmpeg, Name = @"Ffmpeg" }
             };
         }
 
@@ -666,7 +666,11 @@
             var result = new List<MonitorItem>
             {
                 // empty (i.e. no timer monitor)
-                new MonitorItem { MonitorName = Properties.Resources.MONITOR_NONE }
+                new MonitorItem
+                {
+                    MonitorName = Properties.Resources.MONITOR_NONE,
+                    FriendlyName = Properties.Resources.MONITOR_NONE
+                }
             };
 
             var monitors = _monitorsService.GetSystemMonitors();
