@@ -1,0 +1,338 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="APP_VER" xml:space="preserve">
+    <value>Versione software OnlyM: {0}</value>
+  </data>
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="blank" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\blank.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="CONFIRM_STOP_MEDIA" xml:space="preserve">
+    <value>Vuoi interrompere la riproduzione?</value>
+  </data>
+  <data name="COPYING_ERROR" xml:space="preserve">
+    <value>C'è stato un errore!</value>
+  </data>
+  <data name="FILES_COPIED" xml:space="preserve">
+    <value>{0} file copiati</value>
+  </data>
+  <data name="FILE_COPIED" xml:space="preserve">
+    <value>File copiato</value>
+  </data>
+  <data name="MEDIA_ACTIVE" xml:space="preserve">
+    <value>Riproduzione in corso, impossibile chiudere!</value>
+  </data>
+  <data name="MONITOR_NONE" xml:space="preserve">
+    <value>Nessuno</value>
+  </data>
+  <data name="NEW_UPDATE_AVAILABLE" xml:space="preserve">
+    <value>Nuovo aggiornamento disponibile!</value>
+  </data>
+  <data name="NO_SUPPORTED_FILES" xml:space="preserve">
+    <value>Nessun file multimediale supportato!</value>
+  </data>
+  <data name="OK" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="VIEW" xml:space="preserve">
+    <value>MOSTRA</value>
+  </data>
+  <data name="YES" xml:space="preserve">
+    <value>SÌ</value>
+  </data>
+  <data name="BLANK_SCREEN" xml:space="preserve">
+    <value>Schermo nero</value>
+  </data>
+  <data name="MEDIA_FOLDER_BROWSE" xml:space="preserve">
+    <value>Selezione cartella multimedia</value>
+  </data>
+  <data name="SETTINGS" xml:space="preserve">
+    <value>Impostazioni</value>
+  </data>
+  <data name="SETTINGS_DISABLED" xml:space="preserve">
+    <value>Impostazioni disabilitate dall'amministratore!</value>
+  </data>
+  <data name="FOLDER" xml:space="preserve">
+    <value>Apri cartella multimedia</value>
+  </data>
+  <data name="FOLDER_DISABLED" xml:space="preserve">
+    <value>Cartella multimedia disabilitata dall'amministratore!</value>
+  </data>
+  <data name="NO_DESELECT_MONITOR" xml:space="preserve">
+    <value>Impossibile deselezionare monitor durante la riproduzione</value>
+  </data>
+  <data name="CONTAINS_X_SLIDES" xml:space="preserve">
+    <value>(contiene {0} diapositive)</value>
+  </data>
+  <data name="SLIDE_X_OF_Y" xml:space="preserve">
+    <value>diapositiva {0} di {1}</value>
+  </data>
+  <data name="CONTAINS_X_ROLLING_SLIDES" xml:space="preserve">
+    <value>(contiene {0} diapositive scorrevoli)</value>
+  </data>
+  <data name="ROLLING_SLIDE_X_OF_Y" xml:space="preserve">
+    <value>diapositiva scorrevole {0} di {1}</value>
+  </data>
+  <data name="MEDIA_MONITOR" xml:space="preserve">
+    <value>Monitor multimedia</value>
+  </data>
+  <data name="SECTION_DISPLAY" xml:space="preserve">
+    <value>SCHERMO</value>
+  </data>
+  <data name="MEDIA_FOLDER" xml:space="preserve">
+    <value>Cartella multimedia</value>
+  </data>
+  <data name="SECTION_MEDIA_FILES" xml:space="preserve">
+    <value>FILE MULTIMEDIALI</value>
+  </data>
+  <data name="MAX_ITEMS" xml:space="preserve">
+    <value>Numero massimo di elementi</value>
+  </data>
+  <data name="MEDIA_FOLDER_CMDLINE" xml:space="preserve">
+    <value>Cartella multimedia indicata sulla riga di comando:</value>
+  </data>
+  <data name="ALLOW_PAUSE" xml:space="preserve">
+    <value>Consenti pausa</value>
+  </data>
+  <data name="ALLOW_SCRUB" xml:space="preserve">
+    <value>Consenti scorrimento in pausa</value>
+  </data>
+  <data name="ALLOW_SEEK" xml:space="preserve">
+    <value>Consenti ricerca posizione</value>
+  </data>
+  <data name="BOTTOM_CHAR" xml:space="preserve">
+    <value>INF </value>
+  </data>
+  <data name="CACHE_IMAGES" xml:space="preserve">
+    <value>Cache immagini (prestazioni migliori ma uso maggiore memoria)</value>
+  </data>
+  <data name="CONFIRM_STOP" xml:space="preserve">
+    <value>Conferma all'arresto</value>
+  </data>
+  <data name="CURRENT_DATE" xml:space="preserve">
+    <value>Data odierna</value>
+  </data>
+  <data name="FADING_SPEED" xml:space="preserve">
+    <value>Velocità dissolvenza</value>
+  </data>
+  <data name="FADING_STYLE" xml:space="preserve">
+    <value>Stile dissolvenza</value>
+  </data>
+  <data name="IMAGE_MARGINS" xml:space="preserve">
+    <value>Margini immagine</value>
+  </data>
+  <data name="LEFT_CHAR" xml:space="preserve">
+    <value>SX  </value>
+  </data>
+  <data name="LOGGING_LEVEL" xml:space="preserve">
+    <value>Livello registro</value>
+  </data>
+  <data name="ON_TOP" xml:space="preserve">
+    <value>Finestra principale sempre in primo piano</value>
+  </data>
+  <data name="PURGE_THUMBS" xml:space="preserve">
+    <value>SVUOTA CACHE MINIATURE</value>
+  </data>
+  <data name="RENDERING_ENGINE" xml:space="preserve">
+    <value>Motore rendering</value>
+  </data>
+  <data name="RIGHT_CHAR" xml:space="preserve">
+    <value>DX  </value>
+  </data>
+  <data name="SECTION_IMAGES" xml:space="preserve">
+    <value>IMMAGINI</value>
+  </data>
+  <data name="SECTION_MARGINS" xml:space="preserve">
+    <value>MARGINI (percentuale dimensioni schermo)</value>
+  </data>
+  <data name="SECTION_MISC" xml:space="preserve">
+    <value>VARIE</value>
+  </data>
+  <data name="SECTION_VIDEO_AUDIO" xml:space="preserve">
+    <value>VIDEO &amp; AUDIO</value>
+  </data>
+  <data name="SHOW_FREEZE" xml:space="preserve">
+    <value>Mostra comando "Ferma" nel pannello comandi</value>
+  </data>
+  <data name="SHOW_SUBTITLES" xml:space="preserve">
+    <value>Mostra sottotitoli se disponibili</value>
+  </data>
+  <data name="TOP_CHAR" xml:space="preserve">
+    <value>SUP</value>
+  </data>
+  <data name="VIDEO_MARGINS" xml:space="preserve">
+    <value>Margini video</value>
+  </data>
+  <data name="AUTO_ROTATE" xml:space="preserve">
+    <value>Rotazione automatica</value>
+  </data>
+  <data name="INCLUDE_BLANK" xml:space="preserve">
+    <value>Aggiungi elemento "Schermo nero"</value>
+  </data>
+  <data name="JW_COMPAT_MODE" xml:space="preserve">
+    <value>Modalità compatibilità con JW Library</value>
+  </data>
+  <data name="PERMANENT_BACKDROP" xml:space="preserve">
+    <value>Sfondo permanente</value>
+  </data>
+  <data name="USE_CMD_PANEL" xml:space="preserve">
+    <value>Abilita pannello comandi</value>
+  </data>
+  <data name="USE_THUMBS" xml:space="preserve">
+    <value>Usa miniature incorporate se disponibili</value>
+  </data>
+  <data name="USE_TITLES" xml:space="preserve">
+    <value>Usa titoli incorporati se disponibili</value>
+  </data>
+  <data name="DROP_HERE" xml:space="preserve">
+    <value>Rilascia qui i tuoi file multimediali!</value>
+  </data>
+  <data name="MEDIA_PAGE" xml:space="preserve">
+    <value>Multimedia</value>
+  </data>
+  <data name="UNHIDE" xml:space="preserve">
+    <value>Mostra elementi nascosti</value>
+  </data>
+  <data name="DISPLAY_HELP" xml:space="preserve">
+    <value>Mostra guida</value>
+  </data>
+  <data name="NEW_VERSION" xml:space="preserve">
+    <value>Nuova versione disponibile!</value>
+  </data>
+  <data name="DELETE" xml:space="preserve">
+    <value>ELIMINA</value>
+    <comment>Button label in Command panel</comment>
+  </data>
+  <data name="FREEZE" xml:space="preserve">
+    <value>Ferma</value>
+    <comment>Button label in Command panel</comment>
+  </data>
+  <data name="HIDE" xml:space="preserve">
+    <value>NASCONDI</value>
+    <comment>Button label in Command panel</comment>
+  </data>
+  <data name="PAUSE_FINAL_FRAME" xml:space="preserve">
+    <value>Fermo immagine sull'ultimo fotogramma</value>
+    <comment>Tooltip on Freeze button in Command panel</comment>
+  </data>
+  <data name="WILL_PAUSE" xml:space="preserve">
+    <value>Pausa sull'ultimo fotogramma</value>
+  </data>
+</root>
