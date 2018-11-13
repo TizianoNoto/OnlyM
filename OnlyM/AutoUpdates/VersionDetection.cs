@@ -12,7 +12,7 @@
     /// </summary>
     internal static class VersionDetection
     {
-        public static string LatestReleaseUrl => "https://github.com/TizianoNoto/OnlyM/releases/latest";
+        public static string LatestReleaseUrl => "https://github.com/AntonyCorbett/OnlyM/releases/latest";
 
         public static string GetLatestReleaseVersionString()
         {

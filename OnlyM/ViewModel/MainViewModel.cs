@@ -244,8 +244,8 @@ namespace OnlyM.ViewModel
                         RaisePropertyChanged(nameof(ShowNewVersionButton));
 
                         _snackbarService.Enqueue(
-                            Properties.Resources.NEW_UPDATE_AVAILABLE, 
-                            Properties.Resources.VIEW, 
+                            "È ora disponibile la traduzione ufficiale!", 
+                            "AGGIORNA", 
                             LaunchReleasePage);
                     }
                 }

@@ -237,7 +237,7 @@
                     <Button
                         Command="{Binding LaunchReleasePageCommand}"
                         Grid.Column="1"
-                        ToolTip="{x:Static resx:Resources.NEW_VERSION}"
+                        ToolTip="Aggiorna!"
                         Visibility="{Binding Path=ShowNewVersionButton, Converter={StaticResource BooleanToVisibilityConverter}}"
                         Style="{StaticResource MaterialDesignFloatingActionMiniAccentButton}">
                         <materialDesign:PackIcon
