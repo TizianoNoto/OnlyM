@@ -1,18 +1,19 @@
 # OnlyM italiano
+#### IMPORTANTE! Ora che [SoundBox-OnlyM](https://www.soundboxsoftware.com/only-m) è disponibile in varie lingue compreso l'italiano a partire da novembre 2018 questo progetto non sarà più aggiornato
 
-Un lettore multimediale che utilizza C# e WPF. Pensato per la riproduzione di contenuti multimediali nelle Sale del Regno in situazioni dove JW Library - il lettore consigliato - non può essere usato (ad es. immagini di terze parti). Si pone l'importanza sulla facilità d'uso al di sopra di funzioni avanzate. Per favore segnala eventuali problemi nella sezione "[Issues](https://github.com/TizianoNoto/OnlyM/issues)". Per problemi non legati alla traduzione puoi andare anche [qui](https://github.com/AntonyCorbett/OnlyM/issues).
+Un lettore multimediale che utilizza C# e WPF. Pensato per la riproduzione di contenuti multimediali nelle Sale del Regno in situazioni dove JW Library - il lettore consigliato - non può essere usato (ad es. immagini di terze parti). Si pone l'importanza sulla facilità d'uso al di sopra di funzioni avanzate. Per favore segnala eventuali problemi nella sezione "[Issues](https://github.com/AntonyCorbett/OnlyM/issues)" del progetto originale.
 
-Questo progetto deriva da [OnlyM](https://github.com/AntonyCorbett/OnlyM) di Antony Corbett ed è tradotto in italiano dal sottoscritto (l'originale supporterà più lingue in futuro ma non prima di quest'anno).
+Questo progetto deriva da [OnlyM](https://github.com/AntonyCorbett/OnlyM) di Antony Corbett ed è stato tradotto in italiano dal sottoscritto quando l'interfaccia originale era disponibile soltanto in inglese.
 
 ![Finestra principale](http://cv8.org.uk/soundbox/OnlyM/Images/MainWindow.png)
 
 ### Download
 
-Se vuoi semplicemente installare l'applicazione scarica il file [OnlyMItaSetup.exe](https://github.com/TizianoNoto/OnlyM/releases/latest).
+Se vuoi semplicemente installare l'applicazione scarica il file ~~[OnlyMItaSetup.exe](https://github.com/TizianoNoto/OnlyM/releases/latest)~~ [OnlyMSetup.exe](https://github.com/AntonyCorbett/OnlyM/releases/latest) dal repository ufficiale.
 
 ### Documentazione
 
-Consulta la [wiki](https://github.com/TizianoNoto/OnlyM/wiki) per le istruzioni di base.
+Consulta la wiki in [italiano](https://github.com/TizianoNoto/OnlyM/wiki) o quella [originale](https://github.com/AntonyCorbett/OnlyM/wiki) (probabilmente più recente) per le istruzioni di base.
 
 
 ### Licenza, ecc.
